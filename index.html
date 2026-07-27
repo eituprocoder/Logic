@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOGIC - Voice Assistant</title>
+    <style>
+        :root {
+            --glow-gold: #ffb700;
+            --glow-orange: #ff5500;
+            --glow-amber: #ff8800;
+            --glow-red: #ff3300;
+            --bg-dark: #070401;
+            --card-bg: #120b02;
+            --card-hover: #1a1003;
+            --text-color: #ffe8d1;
+            --text-muted: #b88d61;
+            --border-glow: rgba(255, 136, 0, 0.4);
+            --cyan-accent: #00f0ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 15px;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 20%, #2b1600 0%, var(--bg-dark) 75%),
+                linear-gradient(rgba(255, 136, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 136, 0, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+        }
+
+        /* --- TOP NAV CONTROLS --- */
+        .top-nav {
+            width: 100%;
+            max-width: 950px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            z-index: 10;
+        }
+
+        .brand-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--glow-gold);
+            text-shadow: 0 0 10px var(--glow-orange);
+            font-size: 1.1rem;
+        }
+
+        .status-badge {
+            background: rgba(255, 136, 0, 0.1);
+            border: 1px solid var(--glow-amber);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: var(--glow-gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--glow-gold);
+            box-shadow: 0 0 8px var(--glow-gold);
+            animation: pulseDot 1.5s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--glow-orange);
+            color: var(--glow-gold);
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 8px rgba(255, 102, 0, 0.2);
+        }
+
+        .nav-btn:hover {
+            border-color: var(--glow-gold);
+            box-shadow: 0 0 15px var(--glow-gold);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        /* --- MAIN ASSISTANT CONTAINER --- */
+        .container {
+            width: 100%;
+            max-width: 950px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* --- LOGIC ORB VISUALIZER --- */
+        .orb-wrapper {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 10px 0 25px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .orb-core {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ffffff 0%, var(--glow-gold) 40%, var(--glow-orange) 75%, #000 100%);
+            box-shadow: 
+                0 0 25px var(--glow-gold),
+                0 0 50px var(--glow-orange),
+                inset 0 0 20px rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .orb-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            pointer-events: none;
+        }
+
+        .ring-1 {
+            width: 130px;
+            height: 130px;
+            border-top-color: var(--glow-gold);
+            border-bottom-color: var(--glow-orange);
+            animation: spinRing 4s linear infinite;
+        }
+
+        .ring-2 {
+            width: 160px;
+            height: 160px;
+            border-left-color: var(--glow-gold);
+            border-right-color: rgba(255, 136, 0, 0.3);
+            animation: spinRingReverse 6s linear infinite;
+        }
+
+        .ring-3 {
+            width: 180px;
+            height: 180px;
+            border: 1px dashed var(--glow-amber);
+            opacity: 0.5;
+            animation: spinRing 12s linear infinite;
+        }
+
+        @keyframes spinRing {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes spinRingReverse {
+            0% { transform: rotate(360deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* ORB STATES */
+        .orb-wrapper.listening .orb-core {
+            background: radial-gradient(circle at 35% 35%, #ffffff 0%, #ff3300 40%, var(--glow-orange) 80%);
+            box-shadow: 0 0 40px #ff3300, 0 0 80px var(--glow-orange);
+            animation: orbPulse 0.8s infinite alternate ease-in-out;
+        }
+
+        .orb-wrapper.speaking .orb-core {
+            background: radial-gradient(circle at 35% 35%, #ffffff 0%, var(--cyan-accent) 30%, var(--glow-gold) 70%);
+            box-shadow: 0 0 35px var(--cyan-accent), 0 0 70px var(--glow-gold);
+            animation: orbSpeak 0.5s infinite alternate ease-in-out;
+        }
+
+        .orb-wrapper.thinking .orb-core {
+            animation: orbRotate 1.2s infinite ease-in-out;
+        }
+
+        @keyframes orbPulse {
+            0% { transform: scale(0.95); }
+            100% { transform: scale(1.15); }
+        }
+
+        @keyframes orbSpeak {
+            0% { transform: scale(1); filter: brightness(1); }
+            100% { transform: scale(1.08); filter: brightness(1.4); }
+        }
+
+        /* LOGO & TITLE */
+        h1.logo {
+            font-size: 3.2rem;
+            text-transform: uppercase;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 15px var(--glow-gold),
+                0 0 35px var(--glow-orange);
+            letter-spacing: 10px;
+            margin-bottom: 2px;
+            user-select: none;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: var(--glow-gold);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 25px;
+            text-shadow: 0 0 5px var(--glow-orange);
+        }
+
+        /* --- SEARCH & VOICE INPUT BOX --- */
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .search-box {
+            display: flex;
+            position: relative;
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.2);
+            border-radius: 35px;
+            overflow: hidden;
+            border: 2px solid var(--glow-orange);
+            background: var(--card-bg);
+            transition: all 0.3s ease;
+            z-index: 5;
+        }
+
+        .search-box:focus-within {
+            border-color: var(--glow-gold);
+            box-shadow: 0 0 30px var(--glow-gold);
+            transform: scale(1.01);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 16px 22px;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .search-input::placeholder {
+            color: #8a581c;
+        }
+
+        .action-icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--glow-gold);
+            padding: 0 14px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .action-icon-btn:hover {
+            color: #fff;
+            text-shadow: 0 0 10px var(--glow-gold);
+        }
+
+        .mic-btn {
+            background: rgba(255, 136, 0, 0.15);
+            border-left: 1px solid rgba(255, 136, 0, 0.3);
+            border-right: 1px solid rgba(255, 136, 0, 0.3);
+        }
+
+        .mic-btn.active {
+            background: var(--glow-red);
+            color: #fff;
+            animation: micPulse 0.8s infinite alternate;
+        }
+
+        @keyframes micPulse {
+            0% { box-shadow: inset 0 0 5px #fff; }
+            100% { box-shadow: inset 0 0 15px #fff, 0 0 20px var(--glow-red); }
+        }
+
+        .search-btn {
+            background: linear-gradient(45deg, var(--glow-orange), var(--glow-gold));
+            border: none;
+            padding: 0 28px;
+            cursor: pointer;
+            color: #000;
+            font-weight: 900;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .search-btn:hover {
+            background: linear-gradient(45deg, var(--glow-gold), #ffffff);
+            box-shadow: -5px 0 15px var(--glow-gold);
+        }
+
+        /* AUTOCOMPLETE DROPDOWN */
+        .suggestions-box {
+            position: absolute;
+            top: 100%;
+            left: 10px;
+            right: 10px;
+            background: rgba(18, 11, 2, 0.98);
+            border: 1px solid var(--glow-orange);
+            border-top: none;
+            border-radius: 0 0 18px 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9), 0 0 15px rgba(255, 102, 0, 0.3);
+            z-index: 4;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+            backdrop-filter: blur(8px);
+            margin-top: -10px;
+            padding-top: 12px;
+            text-align: left;
+        }
+
+        .suggestions-box.active {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 102, 0, 0.1);
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .suggestion-item:hover, .suggestion-item.selected {
+            background: #2a1a04;
+            color: var(--glow-gold);
+        }
+
+        /* --- SYNTHESIZED ANSWER SUMMARY DISPLAY --- */
+        .response-container {
+            width: 100%;
+            margin-top: 30px;
+            display: none;
+            flex-direction: column;
+            gap: 25px;
+            text-align: left;
+        }
+
+        .response-container.active {
+            display: flex;
+        }
+
+        /* UNIFIED ANSWER CARD */
+        .summary-card {
+            background: var(--card-bg);
+            border: 2px solid var(--glow-gold);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 0 25px rgba(255, 183, 0, 0.2);
+            background-image: linear-gradient(135deg, rgba(255, 183, 0, 0.05) 0%, transparent 100%);
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 136, 0, 0.3);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .summary-title-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--glow-gold);
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .speech-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .speech-btn {
+            background: rgba(255, 136, 0, 0.15);
+            border: 1px solid var(--glow-amber);
+            color: var(--glow-gold);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .speech-btn:hover {
+            background: var(--glow-amber);
+            color: #000;
+            box-shadow: 0 0 12px var(--glow-amber);
+        }
+
+        .summary-text {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: var(--text-color);
+            white-space: pre-line;
+        }
+
+        .sources-bar {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px dashed rgba(255, 136, 0, 0.2);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .source-tag {
+            background: #211303;
+            border: 1px solid rgba(255, 136, 0, 0.3);
+            color: var(--glow-gold);
+            padding: 3px 10px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .source-tag:hover {
+            border-color: var(--glow-gold);
+            color: #fff;
+            box-shadow: 0 0 8px var(--glow-amber);
+        }
+
+        /* --- SECTION HEADINGS --- */
+        .section-title {
+            font-size: 1.1rem;
+            color: var(--glow-gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--glow-orange);
+            padding-left: 10px;
+        }
+
+        /* --- RICH MEDIA GALLERY (IMAGES / AUDIO / VIDEO) --- */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .media-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.25s ease;
+        }
+
+        .media-card:hover {
+            border-color: var(--glow-gold);
+            box-shadow: 0 0 15px rgba(255, 136, 0, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .media-preview-box {
+            width: 100%;
+            height: 150px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .media-preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .media-card:hover .media-preview-box img {
+            transform: scale(1.08);
+        }
+
+        .media-preview-box video, .media-preview-box audio {
+            width: 100%;
+            max-height: 100%;
+        }
+
+        .media-info {
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .media-title {
+            font-size: 0.85rem;
+            color: var(--text-color);
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .media-type-badge {
+            font-size: 0.7rem;
+            color: var(--glow-orange);
+            text-transform: uppercase;
+        }
+
+        /* --- DETAILED TOPIC CARDS SECTION --- */
+        .articles-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .article-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            transition: all 0.2s;
+        }
+
+        .article-card:hover {
+            background: var(--card-hover);
+            border-color: var(--glow-gold);
+            box-shadow: 0 0 15px rgba(255, 183, 0, 0.2);
+        }
+
+        .article-thumb {
+            width: 80px;
+            height: 80px;
+            min-width: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid var(--glow-orange);
+            background: #000;
+        }
+
+        .article-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .article-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .article-title {
+            color: var(--glow-gold);
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .article-title:hover {
+            color: #fff;
+            text-shadow: 0 0 8px var(--glow-gold);
+        }
+
+        .fav-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 183, 0, 0.3);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .fav-btn.active, .fav-btn:hover {
+            color: var(--glow-gold);
+            text-shadow: 0 0 10px var(--glow-gold);
+            transform: scale(1.15);
+        }
+
+        .article-extract {
+            font-size: 0.88rem;
+            line-height: 1.4;
+            color: var(--text-muted);
+        }
+
+        /* --- LOADER & STATUS --- */
+        .loader-wrapper {
+            display: none;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--card-bg);
+            border-top: 4px solid var(--glow-gold);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px auto;
+            filter: drop-shadow(0 0 8px var(--glow-gold));
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            color: var(--glow-orange);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* --- MODALS --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--bg-dark);
+            border: 2px solid var(--glow-orange);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 650px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 35px rgba(255, 102, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--glow-orange);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+        }
+
+        .modal-title {
+            color: var(--glow-gold);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 5px var(--glow-orange);
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--glow-orange);
+            font-size: 1.5rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            border-top: 1px solid rgba(255, 102, 0, 0.2);
+            display: flex;
+            justify-content: flex-end;
+            background: var(--card-bg);
+        }
+
+        .modal-btn-action {
+            background: transparent;
+            border: 1px solid var(--glow-red);
+            color: var(--glow-red);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .list-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 102, 0, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .list-item:hover {
+            background: var(--card-hover);
+        }
+
+        /* SETTINGS CONTROLS */
+        .setting-group {
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .setting-label {
+            color: var(--glow-gold);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .setting-select, .setting-range {
+            width: 100%;
+            padding: 10px;
+            background: var(--card-bg);
+            border: 1px solid var(--glow-orange);
+            color: var(--text-color);
+            border-radius: 8px;
+            outline: none;
+        }
+
+        @media (max-width: 600px) {
+            h1.logo { font-size: 2.2rem; }
+            .orb-wrapper { width: 140px; height: 140px; }
+            .orb-core { width: 80px; height: 80px; }
+            .ring-1 { width: 100px; height: 100px; }
+            .ring-2 { width: 120px; height: 120px; }
+            .ring-3 { width: 140px; height: 140px; }
+            .article-card { flex-direction: column; }
+            .article-thumb { width: 100%; height: 140px; }
+            .summary-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP NAVIGATION -->
+    <nav class="top-nav">
+        <div class="brand-pill">
+            <span>🧠</span>
+            <span>LOGIC v2.5</span>
+        </div>
+
+        <div class="status-badge" id="assistantStatusBadge">
+            <span class="status-dot"></span>
+            <span id="statusText">SYSTEM READY</span>
+        </div>
+
+        <div class="nav-actions">
+            <button class="nav-btn" id="voiceSettingsBtn" title="Voice Settings">⚙️ Voice</button>
+            <button class="nav-btn" id="historyNavBtn">🕒 History</button>
+            <button class="nav-btn" id="favNavBtn">⭐ Bookmarks</button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        
+        <!-- VISUALIZER ORB -->
+        <div class="orb-wrapper" id="logicOrb" title="Click to Speak to LOGIC">
+            <div class="ring-3 orb-ring"></div>
+            <div class="ring-2 orb-ring"></div>
+            <div class="ring-1 orb-ring"></div>
+            <div class="orb-core"></div>
+        </div>
+
+        <h1 class="logo" id="mainLogo">LOGIC</h1>
+        <div class="subtitle">SYNTHESIS VOICE ASSISTANT</div>
+
+        <!-- SEARCH WRAPPER & VOICE BUTTON -->
+        <div class="search-wrapper">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="Ask LOGIC anything..." autocomplete="off">
+                
+                <button id="clearInputBtn" class="action-icon-btn" style="display:none;" title="Clear">✕</button>
+
+                <button id="micBtn" class="action-icon-btn mic-btn" title="Speak to LOGIC">
+                    🎙️
+                </button>
+
+                <button id="searchBtn" class="search-btn">
+                    <span>⚡</span>
+                    <span>Query</span>
+                </button>
+            </div>
+
+            <!-- AUTOCOMPLETE DROPDOWN -->
+            <div id="suggestionsBox" class="suggestions-box"></div>
+        </div>
+
+        <!-- LOADER -->
+        <div class="loader-wrapper" id="loaderWrapper">
+            <div class="loader"></div>
+            <div class="loader-text" id="loaderText">SYNTHESIZING MULTI-SOURCE KNOWLEDGE...</div>
+        </div>
+
+        <!-- SYNTHESIZED RESPONSE & MEDIA CONTAINER -->
+        <div class="response-container" id="responseContainer">
+            
+            <!-- EXECUTIVE SUMMARY CARD -->
+            <div class="summary-card">
+                <div class="summary-header">
+                    <div class="summary-title-badge">
+                        <span>🤖</span>
+                        <span id="summaryTopicTitle">Topic Summary</span>
+                    </div>
+                    <div class="speech-controls">
+                        <button class="speech-btn" id="readAloudBtn">🔊 Speak Summary</button>
+                        <button class="speech-btn" id="stopSpeechBtn" style="display:none;">⏹️ Stop Voice</button>
+                    </div>
+                </div>
+
+                <div class="summary-text" id="summaryTextContent">
+                    LOGIC has aggregated knowledge across Wikipedia records...
+                </div>
+
+                <div class="sources-bar" id="sourcesBarContainer">
+                    <span>Sources Analyzed:</span>
+                    <!-- Dynamic Source Tags -->
+                </div>
+            </div>
+
+            <!-- MULTIMEDIA SECTION (IMAGES / AUDIO / VIDEOS) -->
+            <div id="mediaSection" style="display:none;">
+                <div class="section-title">
+                    <span>🎬</span>
+                    <span>Found Media Assets (Images, Audio & Video)</span>
+                </div>
+                <div class="media-grid" id="mediaGridContainer"></div>
+            </div>
+
+            <!-- DETAILED TOPIC BREAKDOWN -->
+            <div>
+                <div class="section-title">
+                    <span>📚</span>
+                    <span>Analyzed Wikipedia Sources</span>
+                </div>
+                <div class="articles-grid" id="articlesGridContainer"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- VOICE SETTINGS MODAL -->
+    <div class="modal-overlay" id="voiceModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">⚙️ Logic Voice Settings</div>
+                <button class="modal-close closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label class="setting-label">Select TTS Voice Engine:</label>
+                    <select id="voiceSelect" class="setting-select"></select>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Speech Speed (Rate): <span id="rateVal">1.0</span>x</label>
+                    <input type="range" id="speechRate" class="setting-range" min="0.5" max="2" step="0.1" value="1.0">
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Speech Pitch: <span id="pitchVal">1.0</span></label>
+                    <input type="range" id="speechPitch" class="setting-range" min="0.5" max="1.5" step="0.1" value="1.0">
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">Auto-Read Summaries Aloud:</label>
+                    <input type="checkbox" id="autoSpeechToggle" checked style="accent-color: var(--glow-gold); transform: scale(1.3); margin-top: 5px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORY MODAL -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">🕒 Query History</div>
+                <button class="modal-close closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="historyList"></div>
+            <div class="modal-footer">
+                <button class="modal-btn-action" id="clearHistoryBtn">Clear History</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOKMARKS MODAL -->
+    <div class="modal-overlay" id="favModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">⭐ Bookmarked Topics</div>
+                <button class="modal-close closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="favList"></div>
+            <div class="modal-footer">
+                <button class="modal-btn-action" id="clearFavBtn">Clear Bookmarks</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 16-BIT RETRO SYNTH AUDIO ENGINE (Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSFX(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+
+            if (type === 'hover') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
+                gainNode.gain.setValueAtTime(0.02, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'click') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.setValueAtTime(800, now + 0.05);
+                gainNode.gain.setValueAtTime(0.06, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'listening') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+                gainNode.gain.setValueAtTime(0.08, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            } else if (type === 'success') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.08);
+                osc.frequency.setValueAtTime(783.99, now + 0.16);
+                gainNode.gain.setValueAtTime(0.08, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } else if (type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.linearRampToValueAtTime(90, now + 0.2);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+        }
+
+        // --- STATE MANAGEMENT ---
+        let historyData = JSON.parse(localStorage.getItem('logic_history') || '[]');
+        let favoritesData = JSON.parse(localStorage.getItem('logic_favorites') || '[]');
+        let currentUnifiedSummary = "";
+        let debounceTimer = null;
+        let selectedSuggestionIndex = -1;
+
+        // DOM ELEMENTS
+        const logicOrb = document.getElementById('logicOrb');
+        const statusText = document.getElementById('statusText');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const micBtn = document.getElementById('micBtn');
+        const clearInputBtn = document.getElementById('clearInputBtn');
+        const suggestionsBox = document.getElementById('suggestionsBox');
+        const loaderWrapper = document.getElementById('loaderWrapper');
+        const loaderText = document.getElementById('loaderText');
+        const responseContainer = document.getElementById('responseContainer');
+
+        const summaryTopicTitle = document.getElementById('summaryTopicTitle');
+        const summaryTextContent = document.getElementById('summaryTextContent');
+        const sourcesBarContainer = document.getElementById('sourcesBarContainer');
+        const mediaSection = document.getElementById('mediaSection');
+        const mediaGridContainer = document.getElementById('mediaGridContainer');
+        const articlesGridContainer = document.getElementById('articlesGridContainer');
+
+        const readAloudBtn = document.getElementById('readAloudBtn');
+        const stopSpeechBtn = document.getElementById('stopSpeechBtn');
+
+        // Modal Controls
+        const voiceModal = document.getElementById('voiceModal');
+        const historyModal = document.getElementById('historyModal');
+        const favModal = document.getElementById('favModal');
+        const voiceSettingsBtn = document.getElementById('voiceSettingsBtn');
+        const historyNavBtn = document.getElementById('historyNavBtn');
+        const favNavBtn = document.getElementById('favNavBtn');
+        const historyList = document.getElementById('historyList');
+        const favList = document.getElementById('favList');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const clearFavBtn = document.getElementById('clearFavBtn');
+
+        // --- TEXT-TO-SPEECH (TTS) SETUP ---
+        const synth = window.speechSynthesis;
+        let availableVoices = [];
+        const voiceSelect = document.getElementById('voiceSelect');
+        const speechRate = document.getElementById('speechRate');
+        const speechPitch = document.getElementById('speechPitch');
+        const rateVal = document.getElementById('rateVal');
+        const pitchVal = document.getElementById('pitchVal');
+        const autoSpeechToggle = document.getElementById('autoSpeechToggle');
+
+        function populateVoices() {
+            if (!synth) return;
+            availableVoices = synth.getVoices().filter(v => v.lang.startsWith('en'));
+            voiceSelect.innerHTML = availableVoices.map((voice, idx) => 
+                `<option value="${idx}">${voice.name} (${voice.lang})</option>`
+            ).join('');
+
+            // Select default English voice
+            const defaultIndex = availableVoices.findIndex(v => v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Natural'));
+            if (defaultIndex !== -1) voiceSelect.value = defaultIndex;
+        }
+
+        populateVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoices;
+        }
+
+        speechRate.addEventListener('input', (e) => rateVal.textContent = e.target.value);
+        speechPitch.addEventListener('input', (e) => pitchVal.textContent = e.target.value);
+
+        function speakText(text) {
+            if (!synth) return;
+            synth.cancel(); // Stop ongoing speech
+
+            if (!text) return;
+
+            // Trim speech to main summary sentence points for punchy voice output
+            const sentences = text.split('. ').slice(0, 4).join('. ') + '.';
+            const utterance = new SpeechSynthesisUtterance(sentences);
+
+            if (availableVoices[voiceSelect.value]) {
+                utterance.voice = availableVoices[voiceSelect.value];
+            }
+            utterance.rate = parseFloat(speechRate.value);
+            utterance.pitch = parseFloat(speechPitch.value);
+
+            utterance.onstart = () => {
+                setAssistantState('speaking', 'LOGIC SPEAKING...');
+                readAloudBtn.style.display = 'none';
+                stopSpeechBtn.style.display = 'inline-flex';
+            };
+
+            utterance.onend = () => {
+                setAssistantState('idle', 'SYSTEM READY');
+                readAloudBtn.style.display = 'inline-flex';
+                stopSpeechBtn.style.display = 'none';
+            };
+
+            utterance.onerror = () => {
+                setAssistantState('idle', 'SYSTEM READY');
+                readAloudBtn.style.display = 'inline-flex';
+                stopSpeechBtn.style.display = 'none';
+            };
+
+            synth.speak(utterance);
+        }
+
+        stopSpeechBtn.addEventListener('click', () => {
+            if (synth) synth.cancel();
+            setAssistantState('idle', 'SYSTEM READY');
+            readAloudBtn.style.display = 'inline-flex';
+            stopSpeechBtn.style.display = 'none';
+        });
+
+        readAloudBtn.addEventListener('click', () => {
+            speakText(currentUnifiedSummary);
+        });
+
+        // --- SPEECH RECOGNITION (STT) SETUP ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                playSFX('listening');
+                micBtn.classList.add('active');
+                setAssistantState('listening', 'LISTENING TO VOICE...');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                searchInput.value = transcript;
+                clearInputBtn.style.display = 'flex';
+                playSFX('success');
+                executeAssistantQuery(transcript);
+            };
+
+            recognition.onerror = () => {
+                playSFX('error');
+                setAssistantState('idle', 'SYSTEM READY');
+                micBtn.classList.remove('active');
+            };
+
+            recognition.onend = () => {
+                micBtn.classList.remove('active');
+            };
+        } else {
+            micBtn.style.display = 'none';
+        }
+
+        micBtn.addEventListener('click', toggleVoiceRecognition);
+        logicOrb.addEventListener('click', toggleVoiceRecognition);
+
+        function toggleVoiceRecognition() {
+            if (!recognition) return;
+            try {
+                recognition.start();
+            } catch (e) {
+                recognition.stop();
+            }
+        }
+
+        // --- ASSISTANT STATE MANAGER ---
+        function setAssistantState(state, label) {
+            statusText.textContent = label;
+            logicOrb.className = 'orb-wrapper ' + state;
+        }
+
+        // --- AUTOCOMPLETE SUGGESTIONS ---
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            clearInputBtn.style.display = query ? 'flex' : 'none';
+
+            clearTimeout(debounceTimer);
+            if (!query) {
+                hideSuggestions();
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                fetchSuggestions(query);
+            }, 200);
+        });
+
+        async function fetchSuggestions(query) {
+            const url = `https://en.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*&search=${encodeURIComponent(query)}&limit=6`;
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const terms = data[1] || [];
+                renderSuggestions(terms);
+            } catch (err) {
+                console.error("Autocomplete error:", err);
+            }
+        }
+
+        function renderSuggestions(terms) {
+            if (terms.length === 0) {
+                hideSuggestions();
+                return;
+            }
+
+            selectedSuggestionIndex = -1;
+            suggestionsBox.innerHTML = terms.map((term, i) => `
+                <div class="suggestion-item" data-index="${i}">
+                    <span>🔍</span>
+                    <span>${escapeHTML(term)}</span>
+                </div>
+            `).join('');
+
+            suggestionsBox.classList.add('active');
+
+            document.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    searchInput.value = item.querySelector('span:last-child').textContent;
+                    hideSuggestions();
+                    executeAssistantQuery(searchInput.value);
+                });
+                item.addEventListener('mouseenter', () => playSFX('hover'));
+            });
+        }
+
+        function hideSuggestions() {
+            suggestionsBox.classList.remove('active');
+            suggestionsBox.innerHTML = '';
+            selectedSuggestionIndex = -1;
+        }
+
+        // --- CORE ASSISTANT SEARCH & MULTI-SOURCE SYNTHESIS ---
+        async function executeAssistantQuery(queryStr) {
+            const query = (queryStr || searchInput.value).trim();
+            if (!query) {
+                playSFX('error');
+                return;
+            }
+
+            hideSuggestions();
+            playSFX('click');
+            saveToHistory(query);
+
+            if (synth) synth.cancel();
+
+            // Reset UI State
+            responseContainer.classList.remove('active');
+            loaderWrapper.style.display = 'block';
+            loaderText.textContent = `LOGIC ANALYZING MULTIPLE SOURCES FOR "${query.toUpperCase()}"...`;
+            setAssistantState('thinking', 'PROCESSING KNOWLEDGE...');
+
+            try {
+                // Fetch Multi-Source Wikipedia Search
+                const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=5&prop=pageimages|extracts|info&pithumbsize=600&exintro=1&explaintext=1&inprop=url&format=json&origin=*`;
+                
+                // Fetch Wikimedia Commons Audio/Video Media
+                const commonsMediaUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=6&prop=imageinfo&iiprop=url|mime|size|extmetadata&format=json&origin=*`;
+
+                const [wikiRes, commonsRes] = await Promise.all([
+                    fetch(wikiUrl).then(r => r.json()).catch(() => ({})),
+                    fetch(commonsMediaUrl).then(r => r.json()).catch(() => ({}))
+                ]);
+
+                loaderWrapper.style.display = 'none';
+
+                if (!wikiRes.query || !wikiRes.query.pages) {
+                    playSFX('error');
+                    setAssistantState('idle', 'NO RESULTS FOUND');
+                    alert(`LOGIC could not find relevant records for "${query}".`);
+                    return;
+                }
+
+                playSFX('success');
+                const pages = Object.values(wikiRes.query.pages);
+                pages.sort((a, b) => (a.index || 0) - (b.index || 0));
+
+                const commonsItems = commonsRes.query && commonsRes.query.pages ? Object.values(commonsRes.query.pages) : [];
+
+                // Synthesize & Render
+                synthesizeKnowledge(query, pages, commonsItems);
+
+            } catch (err) {
+                console.error("Execution error:", err);
+                loaderWrapper.style.display = 'none';
+                playSFX('error');
+                setAssistantState('idle', 'SYSTEM ERROR');
+            }
+        }
+
+        // --- SYNTHESIZE UNIFIED RESPONSE SUMMARY ---
+        function synthesizeKnowledge(query, wikiPages, commonsMedia) {
+            summaryTopicTitle.textContent = `Synthesized Knowledge: ${query}`;
+
+            // Combine extracts intelligently into one concise master narrative
+            let masterSummary = [];
+            let sourceTagsHtml = [];
+
+            wikiPages.forEach((page, index) => {
+                if (page.extract) {
+                    // Extract first 2 clean sentences from each top source
+                    const sentences = page.extract.split(/(?<=[.?!])\s+/).slice(0, 2).join(' ');
+                    if (sentences && sentences.length > 20) {
+                        masterSummary.push(`• ${page.title}: ${sentences}`);
+                    }
+                }
+
+                const pageUrl = page.fullurl || `https://en.wikipedia.org/?curid=${page.pageid}`;
+                sourceTagsHtml.push(`<a href="${pageUrl}" target="_blank" class="source-tag">🔗 ${escapeHTML(page.title)}</a>`);
+            });
+
+            // Unified Answer Text
+            currentUnifiedSummary = `Summary for ${query}:\n\n` + masterSummary.join('\n\n');
+            summaryTextContent.textContent = currentUnifiedSummary;
+            sourcesBarContainer.innerHTML = `<span>Sources Analyzed (${wikiPages.length}):</span> ` + sourceTagsHtml.join('');
+
+            // RENDER MEDIA GRID (Images, Audio, Videos)
+            renderMediaSection(wikiPages, commonsMedia);
+
+            // RENDER ARTICLE BREAKDOWN CARDS
+            renderArticlesBreakdown(wikiPages);
+
+            // Display Results Container
+            responseContainer.classList.add('active');
+
+            // Speak synthesized result automatically if toggled
+            if (autoSpeechToggle.checked) {
+                speakText(currentUnifiedSummary);
+            } else {
+                setAssistantState('idle', 'SYNTHESIS COMPLETE');
+            }
+        }
+
+        // --- RENDER MULTIMEDIA GALLERY ---
+        function renderMediaSection(wikiPages, commonsMedia) {
+            mediaGridContainer.innerHTML = '';
+            let mediaFound = 0;
+
+            // 1. Gather Wikipedia Page Main Images
+            wikiPages.forEach(page => {
+                if (page.thumbnail && page.thumbnail.source) {
+                    mediaFound++;
+                    const card = document.createElement('div');
+                    card.className = 'media-card';
+                    card.innerHTML = `
+                        <div class="media-preview-box">
+                            <img src="${page.thumbnail.source}" alt="${escapeHTML(page.title)}">
+                        </div>
+                        <div class="media-info">
+                            <div class="media-title">${escapeHTML(page.title)}</div>
+                            <div class="media-type-badge">🖼️ Image Asset</div>
+                        </div>
+                    `;
+                    mediaGridContainer.appendChild(card);
+                }
+            });
+
+            // 2. Gather Audio & Video Media Files from Commons
+            commonsMedia.forEach(item => {
+                if (item.imageinfo && item.imageinfo[0]) {
+                    const info = item.imageinfo[0];
+                    const mime = info.mime || '';
+                    const fileUrl = info.url;
+                    const title = item.title.replace('File:', '');
+
+                    if (mime.startsWith('audio/') || mime.startsWith('video/') || fileUrl.endsWith('.ogv') || fileUrl.endsWith('.ogg') || fileUrl.endsWith('.mp3')) {
+                        mediaFound++;
+                        const card = document.createElement('div');
+                        card.className = 'media-card';
+
+                        let previewHtml = '';
+                        let typeLabel = '🎵 Audio File';
+
+                        if (mime.startsWith('video/') || fileUrl.endsWith('.ogv') || fileUrl.endsWith('.mp4')) {
+                            typeLabel = '🎬 Video Clip';
+                            previewHtml = `<video controls src="${fileUrl}"></video>`;
+                        } else {
+                            previewHtml = `<audio controls src="${fileUrl}"></audio>`;
+                        }
+
+                        card.innerHTML = `
+                            <div class="media-preview-box">
+                                ${previewHtml}
+                            </div>
+                            <div class="media-info">
+                                <div class="media-title" title="${escapeHTML(title)}">${escapeHTML(title)}</div>
+                                <div class="media-type-badge">${typeLabel}</div>
+                            </div>
+                        `;
+                        mediaGridContainer.appendChild(card);
+                    }
+                }
+            });
+
+            mediaSection.style.display = mediaFound > 0 ? 'block' : 'none';
+        }
+
+        // --- RENDER ARTICLE SOURCES BREAKDOWN ---
+        function renderArticlesBreakdown(wikiPages) {
+            articlesGridContainer.innerHTML = '';
+
+            wikiPages.forEach(page => {
+                const pageUrl = page.fullurl || `https://en.wikipedia.org/?curid=${page.pageid}`;
+                const thumbUrl = page.thumbnail ? page.thumbnail.source : null;
+                const isFav = isFavorite(page.pageid);
+
+                const card = document.createElement('div');
+                card.className = 'article-card';
+
+                card.innerHTML = `
+                    ${thumbUrl ? `<img src="${thumbUrl}" class="article-thumb" alt="${escapeHTML(page.title)}">` : ''}
+                    <div class="article-content">
+                        <div class="article-header">
+                            <a href="${pageUrl}" target="_blank" class="article-title">${escapeHTML(page.title)}</a>
+                            <button class="fav-btn ${isFav ? 'active' : ''}" title="Bookmark Page">
+                                ${isFav ? '★' : '☆'}
+                            </button>
+                        </div>
+                        <div class="article-extract">${escapeHTML(page.extract || 'No snippet available.')}</div>
+                    </div>
+                `;
+
+                // Bookmark toggle listener
+                const favBtn = card.querySelector('.fav-btn');
+                favBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFavorite({ pageid: page.pageid, title: page.title, url: pageUrl }, favBtn);
+                });
+
+                articlesGridContainer.appendChild(card);
+            });
+        }
+
+        // --- HISTORY & BOOKMARKS LOGIC ---
+        function saveToHistory(query) {
+            historyData = historyData.filter(h => h.query.toLowerCase() !== query.toLowerCase());
+            historyData.unshift({
+                query: query,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+            if (historyData.length > 50) historyData.pop();
+            localStorage.setItem('logic_history', JSON.stringify(historyData));
+        }
+
+        function isFavorite(pageid) {
+            return favoritesData.some(f => f.pageid === pageid);
+        }
+
+        function toggleFavorite(data, btn) {
+            const idx = favoritesData.findIndex(f => f.pageid === data.pageid);
+            if (idx > -1) {
+                favoritesData.splice(idx, 1);
+                btn.classList.remove('active');
+                btn.textContent = '☆';
+            } else {
+                favoritesData.push(data);
+                btn.classList.add('active');
+                btn.textContent = '★';
+                playSFX('success');
+            }
+            localStorage.setItem('logic_favorites', JSON.stringify(favoritesData));
+        }
+
+        // --- EVENT LISTENERS & MODALS ---
+        searchBtn.addEventListener('click', () => executeAssistantQuery());
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                hideSuggestions();
+                executeAssistantQuery();
+            }
+        });
+
+        clearInputBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            clearInputBtn.style.display = 'none';
+            hideSuggestions();
+            searchInput.focus();
+        });
+
+        // Modals
+        function openModal(modal) {
+            playSFX('click');
+            modal.classList.add('open');
+        }
+
+        function closeModal(modal) {
+            playSFX('click');
+            modal.classList.remove('open');
+        }
+
+        voiceSettingsBtn.addEventListener('click', () => openModal(voiceModal));
+        historyNavBtn.addEventListener('click', () => {
+            renderHistoryList();
+            openModal(historyModal);
+        });
+        favNavBtn.addEventListener('click', () => {
+            renderFavList();
+            openModal(favModal);
+        });
+
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal || e.target.classList.contains('closeModalBtn')) {
+                    closeModal(modal);
+                }
+            });
+        });
+
+        function renderHistoryList() {
+            if (historyData.length === 0) {
+                historyList.innerHTML = `<div style="text-align:center; color: var(--text-muted);">No recorded history.</div>`;
+                return;
+            }
+            historyList.innerHTML = historyData.map(item => `
+                <div class="list-item" onclick="searchInput.value='${escapeHTML(item.query)}'; closeModal(historyModal); executeAssistantQuery();">
+                    <span>🔍 ${escapeHTML(item.query)}</span>
+                    <span style="font-size:0.75rem; color: var(--text-muted);">${item.time}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderFavList() {
+            if (favoritesData.length === 0) {
+                favList.innerHTML = `<div style="text-align:center; color: var(--text-muted);">No bookmarks saved.</div>`;
+                return;
+            }
+            favList.innerHTML = favoritesData.map(item => `
+                <div class="list-item">
+                    <span>★ ${escapeHTML(item.title)}</span>
+                    <a href="${item.url}" target="_blank" style="color:var(--glow-gold);">Visit 🔗</a>
+                </div>
+            `).join('');
+        }
+
+        clearHistoryBtn.addEventListener('click', () => {
+            historyData = [];
+            localStorage.removeItem('logic_history');
+            renderHistoryList();
+        });
+
+        clearFavBtn.addEventListener('click', () => {
+            favoritesData = [];
+            localStorage.removeItem('logic_favorites');
+            renderFavList();
+        });
+
+        function escapeHTML(str) {
+            return String(str).replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+    </script>
+</body>
+</html>
+
