@@ -6,18 +6,17 @@
     <title>LOGIC - Voice Assistant</title>
     <style>
         :root {
-            --glow-neon: #39ff14;
-            --glow-green: #00ff66;
-            --glow-emerald: #00cc44;
-            --glow-darkgreen: #003311;
-            --glow-red: #ff3344;
-            --bg-dark: #030c05;
-            --card-bg: #071a0e;
-            --card-hover: #0d2917;
-            --text-color: #d1ffd9;
-            --text-muted: #5eb874;
-            --border-glow: rgba(0, 255, 102, 0.4);
-            --cyan-accent: #00ffcc;
+            --glow-gold: #ffb700;
+            --glow-orange: #ff5500;
+            --glow-amber: #ff8800;
+            --glow-red: #ff3300;
+            --bg-dark: #070401;
+            --card-bg: #120b02;
+            --card-hover: #1a1003;
+            --text-color: #ffe8d1;
+            --text-muted: #b88d61;
+            --border-glow: rgba(255, 136, 0, 0.4);
+            --cyan-accent: #00f0ff;
         }
 
         * {
@@ -37,9 +36,9 @@
             padding: 20px 15px;
             overflow-x: hidden;
             background-image: 
-                radial-gradient(circle at 50% 20%, #062612 0%, var(--bg-dark) 75%),
-                linear-gradient(rgba(0, 255, 102, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 102, 0.04) 1px, transparent 1px);
+                radial-gradient(circle at 50% 20%, #2b1600 0%, var(--bg-dark) 75%),
+                linear-gradient(rgba(255, 136, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 136, 0, 0.03) 1px, transparent 1px);
             background-size: 100% 100%, 30px 30px, 30px 30px;
         }
 
@@ -53,7 +52,6 @@
             gap: 10px;
             margin-bottom: 20px;
             z-index: 10;
-            flex-wrap: wrap;
         }
 
         .brand-pill {
@@ -62,18 +60,18 @@
             gap: 8px;
             font-weight: 900;
             letter-spacing: 2px;
-            color: var(--glow-neon);
-            text-shadow: 0 0 10px var(--glow-green);
+            color: var(--glow-gold);
+            text-shadow: 0 0 10px var(--glow-orange);
             font-size: 1.1rem;
         }
 
         .status-badge {
-            background: rgba(0, 255, 102, 0.08);
-            border: 1px solid var(--glow-emerald);
+            background: rgba(255, 136, 0, 0.1);
+            border: 1px solid var(--glow-amber);
             padding: 4px 12px;
             border-radius: 12px;
             font-size: 0.75rem;
-            color: var(--glow-neon);
+            color: var(--glow-gold);
             text-transform: uppercase;
             letter-spacing: 1px;
             display: flex;
@@ -85,8 +83,8 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: var(--glow-neon);
-            box-shadow: 0 0 8px var(--glow-neon);
+            background: var(--glow-gold);
+            box-shadow: 0 0 8px var(--glow-gold);
             animation: pulseDot 1.5s infinite;
         }
 
@@ -98,33 +96,14 @@
         .nav-actions {
             display: flex;
             gap: 8px;
-            align-items: center;
             flex-wrap: wrap;
-        }
-
-        .lang-select {
-            background: var(--card-bg);
-            border: 1px solid var(--glow-green);
-            color: var(--glow-neon);
-            padding: 6px 10px;
-            border-radius: 16px;
-            font-weight: bold;
-            font-size: 0.8rem;
-            outline: none;
-            cursor: pointer;
-            box-shadow: 0 0 8px rgba(0, 255, 102, 0.2);
-            transition: all 0.2s;
-        }
-
-        .lang-select:hover {
-            border-color: var(--glow-neon);
-            box-shadow: 0 0 15px var(--glow-neon);
+            justify-content: flex-end;
         }
 
         .nav-btn {
             background: var(--card-bg);
-            border: 1px solid var(--glow-green);
-            color: var(--glow-neon);
+            border: 1px solid var(--glow-orange);
+            color: var(--glow-gold);
             padding: 8px 14px;
             border-radius: 20px;
             cursor: pointer;
@@ -135,14 +114,25 @@
             align-items: center;
             gap: 6px;
             transition: all 0.2s ease;
-            box-shadow: 0 0 8px rgba(0, 255, 102, 0.2);
+            box-shadow: 0 0 8px rgba(255, 102, 0, 0.2);
+            outline: none;
         }
 
         .nav-btn:hover {
-            border-color: var(--glow-neon);
-            box-shadow: 0 0 15px var(--glow-neon);
+            border-color: var(--glow-gold);
+            box-shadow: 0 0 15px var(--glow-gold);
             color: #fff;
             transform: translateY(-2px);
+        }
+
+        .lang-select {
+            appearance: none;
+            text-align: center;
+        }
+
+        .lang-select option {
+            background: var(--bg-dark);
+            color: var(--glow-gold);
         }
 
         /* --- MAIN ASSISTANT CONTAINER --- */
@@ -155,104 +145,98 @@
             position: relative;
         }
 
-        /* --- ANIMATED ROBOT CHARACTER (REPLACING ORB) --- */
-        .robot-wrapper {
+        /* --- LOGIC ORB VISUALIZER --- */
+        .orb-wrapper {
             position: relative;
-            width: 240px;
-            height: 250px;
-            margin: 5px 0 20px 0;
+            width: 180px;
+            height: 180px;
+            margin: 10px 0 25px 0;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            animation: robotHover 3.5s ease-in-out infinite;
         }
 
-        @keyframes robotHover {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
-        }
-
-        .robot-svg {
-            width: 100%;
-            height: 100%;
-            filter: drop-shadow(0 0 15px rgba(0, 255, 102, 0.5));
-            transition: filter 0.3s ease;
-        }
-
-        .robot-wrapper:hover .robot-svg {
-            filter: drop-shadow(0 0 25px var(--glow-neon));
-        }
-
-        /* ROBOT ANIME & CIRCUITS */
-        .circuit-line {
-            stroke: var(--glow-neon);
-            stroke-width: 2;
-            fill: none;
-            stroke-dasharray: 6, 4;
-            animation: circuitFlow 3s linear infinite;
-        }
-
-        @keyframes circuitFlow {
-            from { stroke-dashoffset: 20; }
-            to { stroke-dashoffset: 0; }
-        }
-
-        .robot-eye {
-            fill: var(--glow-neon);
+        .orb-core {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ffffff 0%, var(--glow-gold) 40%, var(--glow-orange) 75%, #000 100%);
+            box-shadow: 
+                0 0 25px var(--glow-gold),
+                0 0 50px var(--glow-orange),
+                inset 0 0 20px rgba(255, 255, 255, 0.8);
             transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
         }
 
-        .robot-mouth {
-            fill: var(--glow-neon);
-            transition: all 0.2s ease;
+        .orb-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            pointer-events: none;
         }
 
-        .robot-antenna-bulb {
-            fill: var(--glow-neon);
-            animation: antennaPulse 1.2s infinite alternate;
+        .ring-1 {
+            width: 130px;
+            height: 130px;
+            border-top-color: var(--glow-gold);
+            border-bottom-color: var(--glow-orange);
+            animation: spinRing 4s linear infinite;
         }
 
-        @keyframes antennaPulse {
-            0% { fill: #00ff66; filter: drop-shadow(0 0 2px #00ff66); }
-            100% { fill: #ffffff; filter: drop-shadow(0 0 12px #39ff14); }
+        .ring-2 {
+            width: 160px;
+            height: 160px;
+            border-left-color: var(--glow-gold);
+            border-right-color: rgba(255, 136, 0, 0.3);
+            animation: spinRingReverse 6s linear infinite;
         }
 
-        /* ROBOT STATES */
-        .robot-wrapper.listening .robot-svg {
-            filter: drop-shadow(0 0 35px var(--glow-red));
+        .ring-3 {
+            width: 180px;
+            height: 180px;
+            border: 1px dashed var(--glow-amber);
+            opacity: 0.5;
+            animation: spinRing 12s linear infinite;
         }
 
-        .robot-wrapper.listening .robot-eye {
-            fill: #ff3344;
+        @keyframes spinRing {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .robot-wrapper.listening .circuit-line {
-            stroke: #ff3344;
-            animation: circuitFlow 0.8s linear infinite;
+        @keyframes spinRingReverse {
+            0% { transform: rotate(360deg); }
+            100% { transform: rotate(0deg); }
         }
 
-        .robot-wrapper.speaking .robot-svg {
-            filter: drop-shadow(0 0 30px var(--cyan-accent));
+        /* ORB STATES */
+        .orb-wrapper.listening .orb-core {
+            background: radial-gradient(circle at 35% 35%, #ffffff 0%, #ff3300 40%, var(--glow-orange) 80%);
+            box-shadow: 0 0 40px #ff3300, 0 0 80px var(--glow-orange);
+            animation: orbPulse 0.8s infinite alternate ease-in-out;
         }
 
-        .robot-wrapper.speaking .robot-mouth {
-            animation: mouthTalk 0.25s infinite alternate;
+        .orb-wrapper.speaking .orb-core {
+            background: radial-gradient(circle at 35% 35%, #ffffff 0%, var(--cyan-accent) 30%, var(--glow-gold) 70%);
+            box-shadow: 0 0 35px var(--cyan-accent), 0 0 70px var(--glow-gold);
+            animation: orbSpeak 0.5s infinite alternate ease-in-out;
         }
 
-        @keyframes mouthTalk {
-            0% { transform: scaleY(0.4); transform-origin: center; }
-            100% { transform: scaleY(1.3); transform-origin: center; }
+        .orb-wrapper.thinking .orb-core {
+            animation: orbRotate 1.2s infinite ease-in-out;
         }
 
-        .robot-wrapper.thinking .robot-svg {
-            animation: thinkingSpin 2s infinite ease-in-out;
+        @keyframes orbPulse {
+            0% { transform: scale(0.95); }
+            100% { transform: scale(1.15); }
         }
 
-        @keyframes thinkingSpin {
-            0% { transform: rotate(0deg) scale(0.95); }
-            50% { transform: rotate(5deg) scale(1.05); }
-            100% { transform: rotate(0deg) scale(0.95); }
+        @keyframes orbSpeak {
+            0% { transform: scale(1); filter: brightness(1); }
+            100% { transform: scale(1.08); filter: brightness(1.4); }
         }
 
         /* LOGO & TITLE */
@@ -263,8 +247,8 @@
             color: #fff;
             text-shadow: 
                 0 0 5px #fff,
-                0 0 15px var(--glow-neon),
-                0 0 35px var(--glow-emerald);
+                0 0 15px var(--glow-gold),
+                0 0 35px var(--glow-orange);
             letter-spacing: 10px;
             margin-bottom: 2px;
             user-select: none;
@@ -272,11 +256,11 @@
 
         .subtitle {
             font-size: 0.8rem;
-            color: var(--glow-neon);
+            color: var(--glow-gold);
             text-transform: uppercase;
             letter-spacing: 5px;
             margin-bottom: 25px;
-            text-shadow: 0 0 5px var(--glow-emerald);
+            text-shadow: 0 0 5px var(--glow-orange);
         }
 
         /* --- SEARCH & VOICE INPUT BOX --- */
@@ -290,18 +274,18 @@
         .search-box {
             display: flex;
             position: relative;
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.2);
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.2);
             border-radius: 35px;
             overflow: hidden;
-            border: 2px solid var(--glow-green);
+            border: 2px solid var(--glow-orange);
             background: var(--card-bg);
             transition: all 0.3s ease;
             z-index: 5;
         }
 
         .search-box:focus-within {
-            border-color: var(--glow-neon);
-            box-shadow: 0 0 30px var(--glow-neon);
+            border-color: var(--glow-gold);
+            box-shadow: 0 0 30px var(--glow-gold);
             transform: scale(1.01);
         }
 
@@ -317,13 +301,13 @@
         }
 
         .search-input::placeholder {
-            color: #276939;
+            color: #8a581c;
         }
 
         .action-icon-btn {
             background: transparent;
             border: none;
-            color: var(--glow-neon);
+            color: var(--glow-gold);
             padding: 0 14px;
             cursor: pointer;
             font-size: 1.3rem;
@@ -335,13 +319,13 @@
 
         .action-icon-btn:hover {
             color: #fff;
-            text-shadow: 0 0 10px var(--glow-neon);
+            text-shadow: 0 0 10px var(--glow-gold);
         }
 
         .mic-btn {
-            background: rgba(0, 255, 102, 0.12);
-            border-left: 1px solid rgba(0, 255, 102, 0.3);
-            border-right: 1px solid rgba(0, 255, 102, 0.3);
+            background: rgba(255, 136, 0, 0.15);
+            border-left: 1px solid rgba(255, 136, 0, 0.3);
+            border-right: 1px solid rgba(255, 136, 0, 0.3);
         }
 
         .mic-btn.active {
@@ -356,7 +340,7 @@
         }
 
         .search-btn {
-            background: linear-gradient(45deg, var(--glow-emerald), var(--glow-neon));
+            background: linear-gradient(45deg, var(--glow-orange), var(--glow-gold));
             border: none;
             padding: 0 28px;
             cursor: pointer;
@@ -371,8 +355,8 @@
         }
 
         .search-btn:hover {
-            background: linear-gradient(45deg, var(--glow-neon), #ffffff);
-            box-shadow: -5px 0 15px var(--glow-neon);
+            background: linear-gradient(45deg, var(--glow-gold), #ffffff);
+            box-shadow: -5px 0 15px var(--glow-gold);
         }
 
         /* AUTOCOMPLETE DROPDOWN */
@@ -381,11 +365,11 @@
             top: 100%;
             left: 10px;
             right: 10px;
-            background: rgba(7, 26, 14, 0.98);
-            border: 1px solid var(--glow-green);
+            background: rgba(18, 11, 2, 0.98);
+            border: 1px solid var(--glow-orange);
             border-top: none;
             border-radius: 0 0 18px 18px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9), 0 0 15px rgba(0, 255, 102, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9), 0 0 15px rgba(255, 102, 0, 0.3);
             z-index: 4;
             max-height: 250px;
             overflow-y: auto;
@@ -408,13 +392,17 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            border-bottom: 1px solid rgba(0, 255, 102, 0.1);
+            border-bottom: 1px solid rgba(255, 102, 0, 0.1);
             transition: background 0.15s, color 0.15s;
         }
 
         .suggestion-item:hover, .suggestion-item.selected {
-            background: #0f361c;
-            color: var(--glow-neon);
+            background: #2a1a04;
+            color: var(--glow-gold);
+        }
+        
+        .suggestion-history-icon {
+            color: var(--cyan-accent);
         }
 
         /* --- SYNTHESIZED ANSWER SUMMARY DISPLAY --- */
@@ -431,27 +419,22 @@
             display: flex;
         }
 
-        .response-container.rtl {
-            direction: rtl;
-            text-align: right;
-        }
-
         /* UNIFIED ANSWER CARD */
         .summary-card {
             background: var(--card-bg);
-            border: 2px solid var(--glow-neon);
+            border: 2px solid var(--glow-gold);
             border-radius: 16px;
             padding: 24px;
             position: relative;
-            box-shadow: 0 0 25px rgba(0, 255, 102, 0.2);
-            background-image: linear-gradient(135deg, rgba(0, 255, 102, 0.05) 0%, transparent 100%);
+            box-shadow: 0 0 25px rgba(255, 183, 0, 0.2);
+            background-image: linear-gradient(135deg, rgba(255, 183, 0, 0.05) 0%, transparent 100%);
         }
 
         .summary-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(0, 255, 102, 0.3);
+            border-bottom: 1px solid rgba(255, 136, 0, 0.3);
             padding-bottom: 12px;
             margin-bottom: 16px;
         }
@@ -460,7 +443,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: var(--glow-neon);
+            color: var(--glow-gold);
             font-size: 1.1rem;
             font-weight: bold;
             text-transform: uppercase;
@@ -473,9 +456,9 @@
         }
 
         .speech-btn {
-            background: rgba(0, 255, 102, 0.15);
-            border: 1px solid var(--glow-green);
-            color: var(--glow-neon);
+            background: rgba(255, 136, 0, 0.15);
+            border: 1px solid var(--glow-amber);
+            color: var(--glow-gold);
             padding: 6px 14px;
             border-radius: 20px;
             cursor: pointer;
@@ -488,9 +471,9 @@
         }
 
         .speech-btn:hover {
-            background: var(--glow-green);
+            background: var(--glow-amber);
             color: #000;
-            box-shadow: 0 0 12px var(--glow-green);
+            box-shadow: 0 0 12px var(--glow-amber);
         }
 
         .summary-text {
@@ -503,7 +486,7 @@
         .sources-bar {
             margin-top: 15px;
             padding-top: 12px;
-            border-top: 1px dashed rgba(0, 255, 102, 0.2);
+            border-top: 1px dashed rgba(255, 136, 0, 0.2);
             font-size: 0.8rem;
             color: var(--text-muted);
             display: flex;
@@ -513,9 +496,9 @@
         }
 
         .source-tag {
-            background: #092112;
-            border: 1px solid rgba(0, 255, 102, 0.3);
-            color: var(--glow-neon);
+            background: #211303;
+            border: 1px solid rgba(255, 136, 0, 0.3);
+            color: var(--glow-gold);
             padding: 3px 10px;
             border-radius: 10px;
             text-decoration: none;
@@ -524,33 +507,26 @@
         }
 
         .source-tag:hover {
-            border-color: var(--glow-neon);
+            border-color: var(--glow-gold);
             color: #fff;
-            box-shadow: 0 0 8px var(--glow-green);
+            box-shadow: 0 0 8px var(--glow-amber);
         }
 
         /* --- SECTION HEADINGS --- */
         .section-title {
             font-size: 1.1rem;
-            color: var(--glow-neon);
+            color: var(--glow-gold);
             text-transform: uppercase;
             letter-spacing: 2px;
             display: flex;
             align-items: center;
             gap: 8px;
             margin-bottom: 12px;
-            border-left: 4px solid var(--glow-emerald);
+            border-left: 4px solid var(--glow-orange);
             padding-left: 10px;
         }
 
-        .rtl .section-title {
-            border-left: none;
-            border-right: 4px solid var(--glow-emerald);
-            padding-left: 0;
-            padding-right: 10px;
-        }
-
-        /* --- RICH MEDIA GALLERY --- */
+        /* --- RICH MEDIA GALLERY (IMAGES / AUDIO / VIDEO) --- */
         .media-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -568,8 +544,8 @@
         }
 
         .media-card:hover {
-            border-color: var(--glow-neon);
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.3);
+            border-color: var(--glow-gold);
+            box-shadow: 0 0 15px rgba(255, 136, 0, 0.3);
             transform: translateY(-3px);
         }
 
@@ -618,7 +594,7 @@
 
         .media-type-badge {
             font-size: 0.7rem;
-            color: var(--glow-emerald);
+            color: var(--glow-orange);
             text-transform: uppercase;
         }
 
@@ -641,8 +617,8 @@
 
         .article-card:hover {
             background: var(--card-hover);
-            border-color: var(--glow-neon);
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+            border-color: var(--glow-gold);
+            box-shadow: 0 0 15px rgba(255, 183, 0, 0.2);
         }
 
         .article-thumb {
@@ -651,7 +627,7 @@
             min-width: 80px;
             border-radius: 8px;
             object-fit: cover;
-            border: 1px solid var(--glow-emerald);
+            border: 1px solid var(--glow-orange);
             background: #000;
         }
 
@@ -669,7 +645,7 @@
         }
 
         .article-title {
-            color: var(--glow-neon);
+            color: var(--glow-gold);
             font-size: 1.1rem;
             font-weight: bold;
             text-decoration: none;
@@ -677,21 +653,21 @@
 
         .article-title:hover {
             color: #fff;
-            text-shadow: 0 0 8px var(--glow-neon);
+            text-shadow: 0 0 8px var(--glow-gold);
         }
 
         .fav-btn {
             background: transparent;
             border: none;
-            color: rgba(0, 255, 102, 0.3);
+            color: rgba(255, 183, 0, 0.3);
             font-size: 1.3rem;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .fav-btn.active, .fav-btn:hover {
-            color: var(--glow-neon);
-            text-shadow: 0 0 10px var(--glow-neon);
+            color: var(--glow-gold);
+            text-shadow: 0 0 10px var(--glow-gold);
             transform: scale(1.15);
         }
 
@@ -712,11 +688,11 @@
             width: 48px;
             height: 48px;
             border: 4px solid var(--card-bg);
-            border-top: 4px solid var(--glow-neon);
+            border-top: 4px solid var(--glow-gold);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             margin: 0 auto 12px auto;
-            filter: drop-shadow(0 0 8px var(--glow-neon));
+            filter: drop-shadow(0 0 8px var(--glow-gold));
         }
 
         @keyframes spin {
@@ -725,7 +701,7 @@
         }
 
         .loader-text {
-            color: var(--glow-green);
+            color: var(--glow-orange);
             font-size: 0.9rem;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -735,7 +711,7 @@
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.88);
+            background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(8px);
             display: none;
             justify-content: center;
@@ -750,20 +726,20 @@
 
         .modal-box {
             background: var(--bg-dark);
-            border: 2px solid var(--glow-green);
+            border: 2px solid var(--glow-orange);
             border-radius: 16px;
             width: 100%;
             max-width: 650px;
             max-height: 80vh;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 0 35px rgba(0, 255, 102, 0.4);
+            box-shadow: 0 0 35px rgba(255, 102, 0, 0.4);
             overflow: hidden;
         }
 
         .modal-header {
             padding: 16px 20px;
-            border-bottom: 1px solid var(--glow-green);
+            border-bottom: 1px solid var(--glow-orange);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -771,17 +747,17 @@
         }
 
         .modal-title {
-            color: var(--glow-neon);
+            color: var(--glow-gold);
             font-size: 1.1rem;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 0 0 5px var(--glow-emerald);
+            text-shadow: 0 0 5px var(--glow-orange);
         }
 
         .modal-close {
             background: transparent;
             border: none;
-            color: var(--glow-green);
+            color: var(--glow-orange);
             font-size: 1.5rem;
             cursor: pointer;
             font-weight: bold;
@@ -795,7 +771,7 @@
 
         .modal-footer {
             padding: 12px 20px;
-            border-top: 1px solid rgba(0, 255, 102, 0.2);
+            border-top: 1px solid rgba(255, 102, 0, 0.2);
             display: flex;
             justify-content: flex-end;
             background: var(--card-bg);
@@ -814,7 +790,7 @@
 
         .list-item {
             padding: 12px 16px;
-            border-bottom: 1px solid rgba(0, 255, 102, 0.15);
+            border-bottom: 1px solid rgba(255, 102, 0, 0.15);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -834,7 +810,7 @@
         }
 
         .setting-label {
-            color: var(--glow-neon);
+            color: var(--glow-gold);
             font-size: 0.9rem;
             text-transform: uppercase;
         }
@@ -843,15 +819,19 @@
             width: 100%;
             padding: 10px;
             background: var(--card-bg);
-            border: 1px solid var(--glow-green);
+            border: 1px solid var(--glow-orange);
             color: var(--text-color);
             border-radius: 8px;
             outline: none;
         }
 
-        @media (max-width: 650px) {
+        @media (max-width: 600px) {
             h1.logo { font-size: 2.2rem; }
-            .robot-wrapper { width: 190px; height: 200px; }
+            .orb-wrapper { width: 140px; height: 140px; }
+            .orb-core { width: 80px; height: 80px; }
+            .ring-1 { width: 100px; height: 100px; }
+            .ring-2 { width: 120px; height: 120px; }
+            .ring-3 { width: 140px; height: 140px; }
             .article-card { flex-direction: column; }
             .article-thumb { width: 100%; height: 140px; }
             .summary-header { flex-direction: column; align-items: flex-start; gap: 10px; }
@@ -863,8 +843,8 @@
     <!-- TOP NAVIGATION -->
     <nav class="top-nav">
         <div class="brand-pill">
-            <span>🤖</span>
-            <span>LOGIC v2.5</span>
+            <span>🧠</span>
+            <span>LOGIC v3.0</span>
         </div>
 
         <div class="status-badge" id="assistantStatusBadge">
@@ -873,30 +853,28 @@
         </div>
 
         <div class="nav-actions">
-            <!-- 20+ LANGUAGES SELECTOR -->
-            <select id="appLangSelect" class="lang-select" title="Change Language">
-                <option value="en" selected>🇺🇸 English</option>
-                <option value="es">🇪🇸 Español</option>
-                <option value="he">🇮🇱 עברית (Hebrew)</option>
-                <option value="fr">🇫🇷 Français</option>
-                <option value="de">🇩🇪 Deutsch</option>
-                <option value="it">🇮🇹 Italiano</option>
-                <option value="pt">🇵🇹 Português</option>
-                <option value="ru">🇷🇺 Русский</option>
-                <option value="ja">🇯🇵 日本語</option>
-                <option value="zh">🇨🇳 中文</option>
-                <option value="ar">🇸🇦 العربية</option>
-                <option value="hi">🇮🇳 हिन्दी</option>
-                <option value="ko">🇰🇷 한국어</option>
-                <option value="nl">🇳🇱 Nederlands</option>
-                <option value="pl">🇵🇱 Polski</option>
-                <option value="tr">🇹🇷 Türkçe</option>
-                <option value="sv">🇸🇪 Svenska</option>
-                <option value="el">🇬🇷 Ελληνικά</option>
-                <option value="uk">🇺🇦 Українська</option>
-                <option value="cs">🇨🇿 Čeština</option>
-                <option value="vi">🇻🇳 Tiếng Việt</option>
-                <option value="ro">🇷🇴 Română</option>
+            <!-- 20+ Language Selector -->
+            <select id="appLanguageSelect" class="nav-btn lang-select" title="App Language">
+                <option value="en" data-voice="en-US">🇬🇧 EN (English)</option>
+                <option value="es" data-voice="es-ES">🇪🇸 ES (Spanish)</option>
+                <option value="he" data-voice="he-IL">🇮🇱 HE (Hebrew)</option>
+                <option value="fr" data-voice="fr-FR">🇫🇷 FR (French)</option>
+                <option value="de" data-voice="de-DE">🇩🇪 DE (German)</option>
+                <option value="it" data-voice="it-IT">🇮🇹 IT (Italian)</option>
+                <option value="pt" data-voice="pt-BR">🇧🇷 PT (Portuguese)</option>
+                <option value="nl" data-voice="nl-NL">🇳🇱 NL (Dutch)</option>
+                <option value="ru" data-voice="ru-RU">🇷🇺 RU (Russian)</option>
+                <option value="ja" data-voice="ja-JP">🇯🇵 JA (Japanese)</option>
+                <option value="ko" data-voice="ko-KR">🇰🇷 KO (Korean)</option>
+                <option value="zh" data-voice="zh-CN">🇨🇳 ZH (Chinese)</option>
+                <option value="ar" data-voice="ar-SA">🇸🇦 AR (Arabic)</option>
+                <option value="hi" data-voice="hi-IN">🇮🇳 HI (Hindi)</option>
+                <option value="tr" data-voice="tr-TR">🇹🇷 TR (Turkish)</option>
+                <option value="pl" data-voice="pl-PL">🇵🇱 PL (Polish)</option>
+                <option value="sv" data-voice="sv-SE">🇸🇪 SV (Swedish)</option>
+                <option value="da" data-voice="da-DK">🇩🇰 DA (Danish)</option>
+                <option value="fi" data-voice="fi-FI">🇫🇮 FI (Finnish)</option>
+                <option value="el" data-voice="el-GR">🇬🇷 EL (Greek)</option>
             </select>
 
             <button class="nav-btn" id="voiceSettingsBtn" title="Voice Settings">⚙️ Voice</button>
@@ -908,88 +886,21 @@
     <!-- MAIN CONTAINER -->
     <div class="container">
         
-        <!-- ANIMATED LOGIC ROBOT CHARACTER (REPLACES SPHERE) -->
-        <div class="robot-wrapper" id="logicRobot" title="Click to Speak to LOGIC">
-            <svg class="robot-svg" viewBox="0 0 300 320" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <!-- Glowing Green Head Gradient -->
-                    <radialGradient id="robotHeadGrad" cx="35%" cy="35%" r="65%">
-                        <stop offset="0%" stop-color="#7fff00" />
-                        <stop offset="40%" stop-color="#00ff66" />
-                        <stop offset="85%" stop-color="#004d1a" />
-                        <stop offset="100%" stop-color="#021407" />
-                    </radialGradient>
-                    <radialGradient id="robotFaceVisor" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stop-color="#072b12" />
-                        <stop offset="100%" stop-color="#010a04" />
-                    </radialGradient>
-                    <filter id="neonGlow">
-                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                        <feMerge>
-                            <feMergeNode in="coloredBlur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
-                </defs>
-
-                <!-- TOP SPROUT / ANTENNA (Top Left & Center) -->
-                <path d="M 142 55 L 142 35 M 142 35 A 8 8 0 1 1 158 35" stroke="#39ff14" stroke-width="3" fill="none" filter="url(#neonGlow)"/>
-                <circle cx="142" cy="25" r="5" class="robot-antenna-bulb" />
-                <!-- Leaf Antenna Sprout Left -->
-                <path d="M 125 55 Q 110 35 118 20 Q 135 30 125 55 Z" fill="#39ff14" filter="url(#neonGlow)" />
-                <path d="M 135 52 Q 132 40 138 30 Q 145 42 135 52 Z" fill="#00ff66" opacity="0.8" />
-
-                <!-- MAIN HEAD OUTER HOOD -->
-                <ellipse cx="150" cy="115" rx="85" ry="70" fill="url(#robotHeadGrad)" stroke="#39ff14" stroke-width="3" filter="url(#neonGlow)"/>
-                
-                <!-- FACE VISOR SCREEN -->
-                <ellipse cx="150" cy="118" rx="68" ry="52" fill="url(#robotFaceVisor)" stroke="#00ff66" stroke-width="2" />
-
-                <!-- GLOWING HAPPY CURVED EYES -->
-                <!-- Left Eye -->
-                <ellipse cx="120" cy="108" rx="18" ry="22" class="robot-eye" filter="url(#neonGlow)"/>
-                <circle cx="115" cy="100" r="5" fill="#ffffff" />
-                <!-- Right Eye -->
-                <ellipse cx="180" cy="108" rx="18" ry="22" class="robot-eye" filter="url(#neonGlow)"/>
-                <circle cx="175" cy="100" r="5" fill="#ffffff" />
-
-                <!-- GLOWING HAPPY MOUTH -->
-                <path d="M 128 132 Q 150 162 172 132 Z" class="robot-mouth" filter="url(#neonGlow)"/>
-
-                <!-- FLOATING WAVING LEFT ARM WITH CIRCUIT MAZE PATTERN -->
-                <g class="robot-arm-left">
-                    <ellipse cx="60" cy="175" rx="22" ry="48" fill="#041c0a" stroke="#00ff66" stroke-width="2.5" transform="rotate(20 60 175)" filter="url(#neonGlow)"/>
-                    <!-- Circuit Lines on Left Arm -->
-                    <path class="circuit-line" d="M 52 145 L 62 165 L 55 185 L 65 200" transform="rotate(20 60 175)"/>
-                    <path class="circuit-line" d="M 65 148 L 55 170 L 66 190" transform="rotate(20 60 175)"/>
-                </g>
-
-                <!-- TORSO BODY WITH CIRCUIT GRID -->
-                <path d="M 105 170 C 105 155 195 155 195 170 L 185 270 C 185 285 115 285 115 270 Z" fill="#041a0b" stroke="#39ff14" stroke-width="3" filter="url(#neonGlow)"/>
-                
-                <!-- TORSO MAZE / CIRCUIT PATTERNS (Drawing Exact Style) -->
-                <path class="circuit-line" d="M 125 180 L 140 180 L 140 200 L 160 200 L 160 185 L 175 185" />
-                <path class="circuit-line" d="M 120 210 L 135 210 L 135 235 L 150 235 L 150 220 L 178 220" />
-                <path class="circuit-line" d="M 130 245 L 145 245 L 145 265 L 170 265" />
-                <path class="circuit-line" d="M 155 175 L 155 195 L 170 195 L 170 210" />
-
-                <!-- FLOATING RIGHT ARM WITH CIRCUIT PATTERN -->
-                <g class="robot-arm-right">
-                    <ellipse cx="240" cy="190" rx="22" ry="48" fill="#041c0a" stroke="#00ff66" stroke-width="2.5" transform="rotate(-15 240 190)" filter="url(#neonGlow)"/>
-                    <!-- Circuit Lines on Right Arm -->
-                    <path class="circuit-line" d="M 235 160 L 245 180 L 235 200 L 245 220" transform="rotate(-15 240 190)"/>
-                    <path class="circuit-line" d="M 245 165 L 232 185 L 244 210" transform="rotate(-15 240 190)"/>
-                </g>
-            </svg>
+        <!-- VISUALIZER ORB -->
+        <div class="orb-wrapper" id="logicOrb" title="Click to Speak to LOGIC">
+            <div class="ring-3 orb-ring"></div>
+            <div class="ring-2 orb-ring"></div>
+            <div class="ring-1 orb-ring"></div>
+            <div class="orb-core"></div>
         </div>
 
         <h1 class="logo" id="mainLogo">LOGIC</h1>
-        <div class="subtitle" id="subTitleText">SYNTHESIS VOICE ASSISTANT</div>
+        <div class="subtitle">SYNTHESIS VOICE ASSISTANT</div>
 
         <!-- SEARCH WRAPPER & VOICE BUTTON -->
         <div class="search-wrapper">
             <div class="search-box">
-                <input type="text" id="searchInput" class="search-input" placeholder="Ask LOGIC anything..." autocomplete="off">
+                <input type="text" id="searchInput" class="search-input" placeholder="Ask LOGIC, Calculate Math, or Translate..." autocomplete="off">
                 
                 <button id="clearInputBtn" class="action-icon-btn" style="display:none;" title="Clear">✕</button>
 
@@ -999,7 +910,7 @@
 
                 <button id="searchBtn" class="search-btn">
                     <span>⚡</span>
-                    <span id="queryBtnText">Query</span>
+                    <span>Query</span>
                 </button>
             </div>
 
@@ -1010,17 +921,17 @@
         <!-- LOADER -->
         <div class="loader-wrapper" id="loaderWrapper">
             <div class="loader"></div>
-            <div class="loader-text" id="loaderText">SYNTHESIZING MULTI-SOURCE KNOWLEDGE...</div>
+            <div class="loader-text" id="loaderText">SYNTHESIZING KNOWLEDGE...</div>
         </div>
 
         <!-- SYNTHESIZED RESPONSE & MEDIA CONTAINER -->
         <div class="response-container" id="responseContainer">
             
             <!-- EXECUTIVE SUMMARY CARD -->
-            <div class="summary-card">
+            <div class="summary-card" id="summaryCardBlock">
                 <div class="summary-header">
                     <div class="summary-title-badge">
-                        <span>🤖</span>
+                        <span id="summaryTopicIcon">🤖</span>
                         <span id="summaryTopicTitle">Topic Summary</span>
                     </div>
                     <div class="speech-controls">
@@ -1030,7 +941,7 @@
                 </div>
 
                 <div class="summary-text" id="summaryTextContent">
-                    LOGIC has aggregated knowledge across global records...
+                    LOGIC has aggregated knowledge across Wikipedia records...
                 </div>
 
                 <div class="sources-bar" id="sourcesBarContainer">
@@ -1043,16 +954,16 @@
             <div id="mediaSection" style="display:none;">
                 <div class="section-title">
                     <span>🎬</span>
-                    <span id="mediaSectionTitle">Found Media Assets (Images, Audio & Video)</span>
+                    <span>Found Media Assets (Images, Audio & Video)</span>
                 </div>
                 <div class="media-grid" id="mediaGridContainer"></div>
             </div>
 
             <!-- DETAILED TOPIC BREAKDOWN -->
-            <div>
+            <div id="articlesSection" style="display:none;">
                 <div class="section-title">
                     <span>📚</span>
-                    <span id="articlesSectionTitle">Analyzed Wikipedia Sources</span>
+                    <span>Analyzed Wikipedia Sources</span>
                 </div>
                 <div class="articles-grid" id="articlesGridContainer"></div>
             </div>
@@ -1083,7 +994,7 @@
                 </div>
                 <div class="setting-group">
                     <label class="setting-label">Auto-Read Summaries Aloud:</label>
-                    <input type="checkbox" id="autoSpeechToggle" checked style="accent-color: var(--glow-neon); transform: scale(1.3); margin-top: 5px;">
+                    <input type="checkbox" id="autoSpeechToggle" checked style="accent-color: var(--glow-gold); transform: scale(1.3); margin-top: 5px;">
                 </div>
             </div>
         </div>
@@ -1118,35 +1029,7 @@
     </div>
 
     <script>
-        // --- 20+ LANGUAGES DICTIONARY & STT/TTS CODES ---
-        const LANGUAGES_CONFIG = {
-            en: { stt: 'en-US', placeholder: 'Ask LOGIC anything...', btnText: 'Query', rtl: false },
-            es: { stt: 'es-ES', placeholder: 'Pregúntale algo a LOGIC...', btnText: 'Buscar', rtl: false },
-            he: { stt: 'he-IL', placeholder: 'שאל את LOGIC כל דבר...', btnText: 'חיפוש', rtl: true },
-            fr: { stt: 'fr-FR', placeholder: 'Demandez n\'importe quoi à LOGIC...', btnText: 'Rechercher', rtl: false },
-            de: { stt: 'de-DE', placeholder: 'Frage LOGIC irgendetwas...', btnText: 'Suchen', rtl: false },
-            it: { stt: 'it-IT', placeholder: 'Chiedi qualsiasi cosa a LOGIC...', btnText: 'Cerca', rtl: false },
-            pt: { stt: 'pt-PT', placeholder: 'Pergunte qualquer coisa ao LOGIC...', btnText: 'Pesquisar', rtl: false },
-            ru: { stt: 'ru-RU', placeholder: 'Спросите LOGIC о чем угодно...', btnText: 'Поиск', rtl: false },
-            ja: { stt: 'ja-JP', placeholder: 'LOGICに何でも質問してください...', btnText: '検索', rtl: false },
-            zh: { stt: 'zh-CN', placeholder: '向 LOGIC 提问任何问题...', btnText: '查询', rtl: false },
-            ar: { stt: 'ar-SA', placeholder: 'اسأل LOGIC أي شيء...', btnText: 'بحث', rtl: true },
-            hi: { stt: 'hi-IN', placeholder: 'LOGIC से कुछ भी पूछें...', btnText: 'खोजें', rtl: false },
-            ko: { stt: 'ko-KR', placeholder: 'LOGIC에게 무엇이든 물어보세요...', btnText: '검색', rtl: false },
-            nl: { stt: 'nl-NL', placeholder: 'Vraag LOGIC alles...', btnText: 'Zoeken', rtl: false },
-            pl: { stt: 'pl-PL', placeholder: 'Zapytaj LOGIC o cokolwiek...', btnText: 'Szukaj', rtl: false },
-            tr: { stt: 'tr-TR', placeholder: 'LOGIC\'e herhangi bir şey sorun...', btnText: 'Ara', rtl: false },
-            sv: { stt: 'sv-SE', placeholder: 'Fråga LOGIC vad som helst...', btnText: 'Sök', rtl: false },
-            el: { stt: 'el-GR', placeholder: 'Ρωτήστε το LOGIC οτιδήποτε...', btnText: 'Αναζήτηση', rtl: false },
-            uk: { stt: 'uk-UA', placeholder: 'Запитайте LOGIC про що завгодно...', btnText: 'Пошук', rtl: false },
-            cs: { stt: 'cs-CZ', placeholder: 'Zeptejte se LOGIC na cokoliv...', btnText: 'Hledat', rtl: false },
-            vi: { stt: 'vi-VN', placeholder: 'Hỏi LOGIC bất cứ điều gì...', btnText: 'Tìm kiếm', rtl: false },
-            ro: { stt: 'ro-RO', placeholder: 'Întreabă LOGIC orice...', btnText: 'Căutare', rtl: false }
-        };
-
-        let currentLangCode = 'en';
-
-        // --- RETRO SYNTH AUDIO ENGINE (ADAPTED FOR GREEN CYBER SFX) ---
+        // --- 16-BIT RETRO SYNTH AUDIO ENGINE (Web Audio API) ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSFX(type) {
@@ -1161,50 +1044,61 @@
             const now = audioCtx.currentTime;
 
             if (type === 'hover') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(800, now);
-                osc.frequency.exponentialRampToValueAtTime(1400, now + 0.04);
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
                 gainNode.gain.setValueAtTime(0.02, now);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
                 osc.start(now);
-                osc.stop(now + 0.04);
+                osc.stop(now + 0.05);
             } else if (type === 'click') {
                 osc.type = 'square';
-                osc.frequency.setValueAtTime(520, now);
-                osc.frequency.setValueAtTime(960, now + 0.05);
-                gainNode.gain.setValueAtTime(0.05, now);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.setValueAtTime(800, now + 0.05);
+                gainNode.gain.setValueAtTime(0.06, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
                 osc.start(now);
-                osc.stop(now + 0.08);
+                osc.stop(now + 0.1);
             } else if (type === 'listening') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(587.33, now);
-                osc.frequency.exponentialRampToValueAtTime(1174.66, now + 0.15);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
                 gainNode.gain.setValueAtTime(0.08, now);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
                 osc.start(now);
                 osc.stop(now + 0.15);
             } else if (type === 'success') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(659.25, now);
-                osc.frequency.setValueAtTime(880.00, now + 0.08);
-                osc.frequency.setValueAtTime(1046.50, now + 0.16);
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.08);
+                osc.frequency.setValueAtTime(783.99, now + 0.16);
                 gainNode.gain.setValueAtTime(0.08, now);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
                 osc.start(now);
                 osc.stop(now + 0.25);
             } else if (type === 'error') {
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(180, now);
-                osc.frequency.linearRampToValueAtTime(75, now + 0.2);
-                gainNode.gain.setValueAtTime(0.08, now);
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.linearRampToValueAtTime(90, now + 0.2);
+                gainNode.gain.setValueAtTime(0.1, now);
                 gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
                 osc.start(now);
                 osc.stop(now + 0.2);
             }
         }
 
-        // --- STATE MANAGEMENT ---
+        // --- GLOBAL APP SETTINGS & STATE ---
+        let currentAppLanguage = 'en'; // Wikipedia prefix
+        let currentVoiceLanguage = 'en-US'; // Speech Recognition & TTS prefix
+
+        // Language Maps for Translation Function
+        const translationLanguageMap = {
+            'english': 'en', 'spanish': 'es', 'hebrew': 'he', 'french': 'fr', 'german': 'de',
+            'italian': 'it', 'portuguese': 'pt', 'dutch': 'nl', 'russian': 'ru', 'japanese': 'ja',
+            'korean': 'ko', 'chinese': 'zh', 'arabic': 'ar', 'hindi': 'hi', 'turkish': 'tr',
+            'polish': 'pl', 'swedish': 'sv', 'danish': 'da', 'finnish': 'fi', 'greek': 'el'
+        };
+
         let historyData = JSON.parse(localStorage.getItem('logic_history') || '[]');
         let favoritesData = JSON.parse(localStorage.getItem('logic_favorites') || '[]');
         let currentUnifiedSummary = "";
@@ -1212,7 +1106,7 @@
         let selectedSuggestionIndex = -1;
 
         // DOM ELEMENTS
-        const logicRobot = document.getElementById('logicRobot');
+        const logicOrb = document.getElementById('logicOrb');
         const statusText = document.getElementById('statusText');
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
@@ -1223,19 +1117,20 @@
         const loaderText = document.getElementById('loaderText');
         const responseContainer = document.getElementById('responseContainer');
 
+        const summaryTopicIcon = document.getElementById('summaryTopicIcon');
         const summaryTopicTitle = document.getElementById('summaryTopicTitle');
         const summaryTextContent = document.getElementById('summaryTextContent');
         const sourcesBarContainer = document.getElementById('sourcesBarContainer');
         const mediaSection = document.getElementById('mediaSection');
         const mediaGridContainer = document.getElementById('mediaGridContainer');
+        const articlesSection = document.getElementById('articlesSection');
         const articlesGridContainer = document.getElementById('articlesGridContainer');
 
         const readAloudBtn = document.getElementById('readAloudBtn');
         const stopSpeechBtn = document.getElementById('stopSpeechBtn');
-        const appLangSelect = document.getElementById('appLangSelect');
-        const queryBtnText = document.getElementById('queryBtnText');
 
         // Modal Controls
+        const appLanguageSelect = document.getElementById('appLanguageSelect');
         const voiceModal = document.getElementById('voiceModal');
         const historyModal = document.getElementById('historyModal');
         const favModal = document.getElementById('favModal');
@@ -1246,26 +1141,6 @@
         const favList = document.getElementById('favList');
         const clearHistoryBtn = document.getElementById('clearHistoryBtn');
         const clearFavBtn = document.getElementById('clearFavBtn');
-
-        // --- LANGUAGE SWITCHER HANDLING ---
-        appLangSelect.addEventListener('change', (e) => {
-            currentLangCode = e.target.value;
-            const config = LANGUAGES_CONFIG[currentLangCode] || LANGUAGES_CONFIG['en'];
-            searchInput.placeholder = config.placeholder;
-            queryBtnText.textContent = config.btnText;
-            
-            if (config.rtl) {
-                responseContainer.classList.add('rtl');
-            } else {
-                responseContainer.classList.remove('rtl');
-            }
-
-            populateVoices();
-            if (recognition) {
-                recognition.lang = config.stt;
-            }
-            playSFX('click');
-        });
 
         // --- TEXT-TO-SPEECH (TTS) SETUP ---
         const synth = window.speechSynthesis;
@@ -1279,17 +1154,20 @@
 
         function populateVoices() {
             if (!synth) return;
-            const allVoices = synth.getVoices();
+            availableVoices = synth.getVoices();
             
-            // Prioritize voices matching current selected language
-            availableVoices = allVoices.filter(v => v.lang.startsWith(currentLangCode));
-            if (availableVoices.length === 0) {
-                availableVoices = allVoices; // fallback to all
-            }
+            // Filter to show voices that match the current app language broadly, but include all as fallback
+            const langPrefix = currentVoiceLanguage.split('-')[0];
+            let preferredVoices = availableVoices.filter(v => v.lang.startsWith(langPrefix));
+            if (preferredVoices.length === 0) preferredVoices = availableVoices; // Fallback to all if none found
 
             voiceSelect.innerHTML = availableVoices.map((voice, idx) => 
                 `<option value="${idx}">${voice.name} (${voice.lang})</option>`
             ).join('');
+
+            // Select default Voice based on current selected App Language
+            const defaultIndex = availableVoices.findIndex(v => v.lang === currentVoiceLanguage || v.lang.startsWith(langPrefix));
+            if (defaultIndex !== -1) voiceSelect.value = defaultIndex;
         }
 
         populateVoices();
@@ -1297,24 +1175,37 @@
             speechSynthesis.onvoiceschanged = populateVoices;
         }
 
+        // --- LANGUAGE SWITCHER EVENT ---
+        appLanguageSelect.addEventListener('change', (e) => {
+            currentAppLanguage = e.target.value;
+            currentVoiceLanguage = e.target.options[e.target.selectedIndex].getAttribute('data-voice');
+            
+            // Update Speech Recognition Engine Language
+            if (recognition) {
+                recognition.lang = currentVoiceLanguage;
+            }
+            // Repopulate TTS voices to prefer new language
+            populateVoices();
+            playSFX('success');
+            setAssistantState('idle', `LANGUAGE: ${currentAppLanguage.toUpperCase()}`);
+        });
+
         speechRate.addEventListener('input', (e) => rateVal.textContent = e.target.value);
         speechPitch.addEventListener('input', (e) => pitchVal.textContent = e.target.value);
 
         function speakText(text) {
             if (!synth) return;
-            synth.cancel();
+            synth.cancel(); // Stop ongoing speech
 
             if (!text) return;
 
-            const sentences = text.split('. ').slice(0, 4).join('. ') + '.';
+            // Trim speech to main summary sentence points for punchy voice output
+            const sentences = text.split('. ').slice(0, 4).join('. ') + (text.includes('.') ? '.' : '');
             const utterance = new SpeechSynthesisUtterance(sentences);
 
             if (availableVoices[voiceSelect.value]) {
                 utterance.voice = availableVoices[voiceSelect.value];
-            } else {
-                utterance.lang = LANGUAGES_CONFIG[currentLangCode]?.stt || 'en-US';
             }
-
             utterance.rate = parseFloat(speechRate.value);
             utterance.pitch = parseFloat(speechPitch.value);
 
@@ -1357,9 +1248,9 @@
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
             recognition.continuous = false;
+            recognition.lang = currentVoiceLanguage; // Dynamic initialization
 
             recognition.onstart = () => {
-                recognition.lang = LANGUAGES_CONFIG[currentLangCode]?.stt || 'en-US';
                 playSFX('listening');
                 micBtn.classList.add('active');
                 setAssistantState('listening', 'LISTENING TO VOICE...');
@@ -1387,25 +1278,24 @@
         }
 
         micBtn.addEventListener('click', toggleVoiceRecognition);
-        logicRobot.addEventListener('click', toggleVoiceRecognition);
+        logicOrb.addEventListener('click', toggleVoiceRecognition);
 
         function toggleVoiceRecognition() {
             if (!recognition) return;
             try {
-                recognition.lang = LANGUAGES_CONFIG[currentLangCode]?.stt || 'en-US';
                 recognition.start();
             } catch (e) {
                 recognition.stop();
             }
         }
 
-        // --- ASSISTANT STATE MANAGER FOR ROBOT ---
+        // --- ASSISTANT STATE MANAGER ---
         function setAssistantState(state, label) {
             statusText.textContent = label;
-            logicRobot.className = 'robot-wrapper ' + state;
+            logicOrb.className = 'orb-wrapper ' + state;
         }
 
-        // --- AUTOCOMPLETE SUGGESTIONS ---
+        // --- SMART AUTOCOMPLETE SUGGESTIONS (With Search Recommendation Algorithm) ---
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.trim();
             clearInputBtn.style.display = query ? 'flex' : 'none';
@@ -1422,29 +1312,46 @@
         });
 
         async function fetchSuggestions(query) {
-            const lang = currentLangCode;
-            const url = `https://${lang}.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*&search=${encodeURIComponent(query)}&limit=6`;
             try {
+                // 1. Fetch from Wikipedia for Live Suggestions
+                const url = `https://${currentAppLanguage}.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*&search=${encodeURIComponent(query)}&limit=6`;
                 const response = await fetch(url);
                 const data = await response.json();
-                const terms = data[1] || [];
-                renderSuggestions(terms);
+                const wikiTerms = data[1] || [];
+
+                // 2. Search Recommendation Algorithm: Blend with Local History
+                const historyMatches = historyData
+                    .filter(h => h.query.toLowerCase().includes(query.toLowerCase()))
+                    .map(h => h.query)
+                    .slice(0, 3); // Max 3 history recommendations
+
+                // Ensure no duplicates between History and Wiki suggestions
+                const uniqueWikiTerms = wikiTerms.filter(t => !historyMatches.includes(t));
+
+                renderSuggestions(historyMatches, uniqueWikiTerms);
             } catch (err) {
                 console.error("Autocomplete error:", err);
             }
         }
 
-        function renderSuggestions(terms) {
-            if (terms.length === 0) {
+        function renderSuggestions(historyTerms, wikiTerms) {
+            if (historyTerms.length === 0 && wikiTerms.length === 0) {
                 hideSuggestions();
                 return;
             }
 
             selectedSuggestionIndex = -1;
-            suggestionsBox.innerHTML = terms.map((term, i) => `
+            
+            // Map and combine objects
+            const combined = [
+                ...historyTerms.map(t => ({ term: t, icon: '🕒', isHistory: true })),
+                ...wikiTerms.map(t => ({ term: t, icon: '🔍', isHistory: false }))
+            ];
+
+            suggestionsBox.innerHTML = combined.map((item, i) => `
                 <div class="suggestion-item" data-index="${i}">
-                    <span>🔍</span>
-                    <span>${escapeHTML(term)}</span>
+                    <span class="${item.isHistory ? 'suggestion-history-icon' : ''}">${item.icon}</span>
+                    <span>${escapeHTML(item.term)}</span>
                 </div>
             `).join('');
 
@@ -1466,6 +1373,55 @@
             selectedSuggestionIndex = -1;
         }
 
+        // --- MATH CALCULATION ENGINE ---
+        function evaluateMathExpression(query) {
+            // Regex to allow numbers, basic math operators, decimals, spaces, parenthesis
+            const mathRegex = /^[\d\s\+\-\*\/\(\)\.]+$/;
+            // Prevent empty or spaces-only, and ensure it actually contains an operator to avoid matching plain numbers
+            if (mathRegex.test(query) && /[+\-*/]/.test(query)) {
+                try {
+                    // Safe basic evaluation
+                    const result = new Function(`"use strict"; return (${query})`)();
+                    if (isFinite(result)) return { query: query, result: result };
+                } catch(e) {
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        // --- TRANSLATION SYSTEM (MyMemory API) ---
+        async function checkAndExecuteTranslation(query) {
+            // Regex detects format: "Translate [text] to [language]"
+            const transMatch = query.match(/^translate\s+(.+?)\s+(?:to|in)\s+([a-zA-Z]+)$/i);
+            if (transMatch) {
+                const textToTranslate = transMatch[1].trim();
+                const targetLangStr = transMatch[2].toLowerCase();
+                
+                // Map the detected language string (e.g. 'spanish') to ISO code ('es')
+                const targetCode = translationLanguageMap[targetLangStr];
+                
+                if (targetCode) {
+                    const sourceCode = currentAppLanguage; // Translate from active app language
+                    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=${sourceCode}|${targetCode}`;
+                    
+                    try {
+                        const res = await fetch(url);
+                        const data = await res.json();
+                        return {
+                            original: textToTranslate,
+                            translatedText: data.responseData.translatedText,
+                            targetLang: targetLangStr.toUpperCase(),
+                            targetCode: targetCode
+                        };
+                    } catch (e) {
+                        console.error("Translation error", e);
+                    }
+                }
+            }
+            return null;
+        }
+
         // --- CORE ASSISTANT SEARCH & MULTI-SOURCE SYNTHESIS ---
         async function executeAssistantQuery(queryStr) {
             const query = (queryStr || searchInput.value).trim();
@@ -1483,15 +1439,33 @@
             // Reset UI State
             responseContainer.classList.remove('active');
             loaderWrapper.style.display = 'block';
-            loaderText.textContent = `LOGIC ANALYZING KNOWLEDGE [${currentLangCode.toUpperCase()}] FOR "${query.toUpperCase()}"...`;
+            loaderText.textContent = `LOGIC ANALYZING MULTIPLE SOURCES FOR "${query.toUpperCase()}"...`;
             setAssistantState('thinking', 'PROCESSING KNOWLEDGE...');
 
             try {
-                const lang = currentLangCode;
-                // Fetch Multi-Source Wikipedia Search using selected language API endpoint!
-                const wikiUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=5&prop=pageimages|extracts|info&pithumbsize=600&exintro=1&explaintext=1&inprop=url&format=json&origin=*`;
+
+                // 1. Check Math System Intent
+                const mathCalc = evaluateMathExpression(query);
+                if (mathCalc !== null) {
+                    loaderWrapper.style.display = 'none';
+                    playSFX('success');
+                    renderSpecialResult("🧮", "Math Calculation", `${mathCalc.query} = ${mathCalc.result}`);
+                    return;
+                }
+
+                // 2. Check Translation System Intent
+                const transCalc = await checkAndExecuteTranslation(query);
+                if (transCalc !== null) {
+                    loaderWrapper.style.display = 'none';
+                    playSFX('success');
+                    renderSpecialResult("🌍", "Language Translation", `Original:\n"${transCalc.original}"\n\nTranslated to ${transCalc.targetLang}:\n"${transCalc.translatedText}"`);
+                    return;
+                }
+
+                // 3. Standard Wikipedia / Media Multi-Source Fetch (Using Localized Language)
+                const wikiUrl = `https://${currentAppLanguage}.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=5&prop=pageimages|extracts|info&pithumbsize=600&exintro=1&explaintext=1&inprop=url&format=json&origin=*`;
                 
-                // Fetch Wikimedia Commons Audio/Video Media
+                // Wikimedia Commons (Media is global, so it remains default origin)
                 const commonsMediaUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=6&prop=imageinfo&iiprop=url|mime|size|extmetadata&format=json&origin=*`;
 
                 const [wikiRes, commonsRes] = await Promise.all([
@@ -1525,30 +1499,55 @@
             }
         }
 
+        // --- RENDER SPECIAL RESULTS (MATH & TRANSLATION) ---
+        function renderSpecialResult(icon, title, contentText) {
+            summaryTopicIcon.textContent = icon;
+            summaryTopicTitle.textContent = title;
+            currentUnifiedSummary = contentText;
+            summaryTextContent.textContent = contentText;
+            sourcesBarContainer.innerHTML = `<span>Source: LOGIC Internal Engine</span>`;
+            
+            // Hide extraneous wiki media sections
+            mediaSection.style.display = 'none';
+            articlesSection.style.display = 'none';
+
+            responseContainer.classList.add('active');
+
+            if (autoSpeechToggle.checked) {
+                speakText(currentUnifiedSummary);
+            } else {
+                setAssistantState('idle', 'TASK COMPLETE');
+            }
+        }
+
         // --- SYNTHESIZE UNIFIED RESPONSE SUMMARY ---
         function synthesizeKnowledge(query, wikiPages, commonsMedia) {
-            summaryTopicTitle.textContent = `Knowledge Base: ${query}`;
+            summaryTopicIcon.textContent = "🤖";
+            summaryTopicTitle.textContent = `Synthesized Knowledge: ${query}`;
 
+            // Combine extracts intelligently into one concise master narrative
             let masterSummary = [];
             let sourceTagsHtml = [];
 
-            wikiPages.forEach((page) => {
+            wikiPages.forEach((page, index) => {
                 if (page.extract) {
+                    // Extract first 2 clean sentences from each top source
                     const sentences = page.extract.split(/(?<=[.?!])\s+/).slice(0, 2).join(' ');
-                    if (sentences && sentences.length > 15) {
+                    if (sentences && sentences.length > 20) {
                         masterSummary.push(`• ${page.title}: ${sentences}`);
                     }
                 }
 
-                const pageUrl = page.fullurl || `https://${currentLangCode}.wikipedia.org/?curid=${page.pageid}`;
+                const pageUrl = page.fullurl || `https://${currentAppLanguage}.wikipedia.org/?curid=${page.pageid}`;
                 sourceTagsHtml.push(`<a href="${pageUrl}" target="_blank" class="source-tag">🔗 ${escapeHTML(page.title)}</a>`);
             });
 
-            currentUnifiedSummary = `Summary (${currentLangCode.toUpperCase()}) for ${query}:\n\n` + masterSummary.join('\n\n');
+            // Unified Answer Text
+            currentUnifiedSummary = `Summary for ${query}:\n\n` + masterSummary.join('\n\n');
             summaryTextContent.textContent = currentUnifiedSummary;
             sourcesBarContainer.innerHTML = `<span>Sources Analyzed (${wikiPages.length}):</span> ` + sourceTagsHtml.join('');
 
-            // RENDER MEDIA GRID
+            // RENDER MEDIA GRID (Images, Audio, Videos)
             renderMediaSection(wikiPages, commonsMedia);
 
             // RENDER ARTICLE BREAKDOWN CARDS
@@ -1570,6 +1569,7 @@
             mediaGridContainer.innerHTML = '';
             let mediaFound = 0;
 
+            // 1. Gather Wikipedia Page Main Images
             wikiPages.forEach(page => {
                 if (page.thumbnail && page.thumbnail.source) {
                     mediaFound++;
@@ -1588,6 +1588,7 @@
                 }
             });
 
+            // 2. Gather Audio & Video Media Files from Commons
             commonsMedia.forEach(item => {
                 if (item.imageinfo && item.imageinfo[0]) {
                     const info = item.imageinfo[0];
@@ -1632,7 +1633,7 @@
             articlesGridContainer.innerHTML = '';
 
             wikiPages.forEach(page => {
-                const pageUrl = page.fullurl || `https://${currentLangCode}.wikipedia.org/?curid=${page.pageid}`;
+                const pageUrl = page.fullurl || `https://${currentAppLanguage}.wikipedia.org/?curid=${page.pageid}`;
                 const thumbUrl = page.thumbnail ? page.thumbnail.source : null;
                 const isFav = isFavorite(page.pageid);
 
@@ -1652,6 +1653,7 @@
                     </div>
                 `;
 
+                // Bookmark toggle listener
                 const favBtn = card.querySelector('.fav-btn');
                 favBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1660,6 +1662,8 @@
 
                 articlesGridContainer.appendChild(card);
             });
+            
+            articlesSection.style.display = 'block';
         }
 
         // --- HISTORY & BOOKMARKS LOGIC ---
@@ -1667,7 +1671,6 @@
             historyData = historyData.filter(h => h.query.toLowerCase() !== query.toLowerCase());
             historyData.unshift({
                 query: query,
-                lang: currentLangCode,
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             });
             if (historyData.length > 50) historyData.pop();
@@ -1745,7 +1748,7 @@
             }
             historyList.innerHTML = historyData.map(item => `
                 <div class="list-item" onclick="searchInput.value='${escapeHTML(item.query)}'; closeModal(historyModal); executeAssistantQuery();">
-                    <span>🔍 ${escapeHTML(item.query)} <small style="color:var(--glow-green);">[${(item.lang || 'en').toUpperCase()}]</small></span>
+                    <span>🔍 ${escapeHTML(item.query)}</span>
                     <span style="font-size:0.75rem; color: var(--text-muted);">${item.time}</span>
                 </div>
             `).join('');
@@ -1759,7 +1762,7 @@
             favList.innerHTML = favoritesData.map(item => `
                 <div class="list-item">
                     <span>★ ${escapeHTML(item.title)}</span>
-                    <a href="${item.url}" target="_blank" style="color:var(--glow-neon);">Visit 🔗</a>
+                    <a href="${item.url}" target="_blank" style="color:var(--glow-gold);">Visit 🔗</a>
                 </div>
             `).join('');
         }
@@ -1784,4 +1787,5 @@
     </script>
 </body>
 </html>
+
 
