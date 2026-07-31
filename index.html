@@ -526,6 +526,42 @@
             padding-left: 10px;
         }
 
+        /* --- GENERATOR TOOLS (NEW FEATURE) --- */
+        .generator-section {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(0, 240, 255, 0.3);
+        }
+
+        .generator-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .gen-btn {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid var(--cyan-accent);
+            color: var(--cyan-accent);
+        }
+
+        .gen-btn:hover {
+            background: rgba(0, 240, 255, 0.2);
+            border-color: #fff;
+            color: #fff;
+            box-shadow: 0 0 15px var(--cyan-accent);
+        }
+
+        #genStatus {
+            color: var(--cyan-accent);
+            font-size: 0.85rem;
+            margin-top: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
         /* --- RICH MEDIA GALLERY (IMAGES / AUDIO / VIDEO) --- */
         .media-grid {
             display: grid;
@@ -844,7 +880,7 @@
     <nav class="top-nav">
         <div class="brand-pill">
             <span>🧠</span>
-            <span>LOGIC v3.0</span>
+            <span>LOGIC v4.0</span>
         </div>
 
         <div class="status-badge" id="assistantStatusBadge">
@@ -900,7 +936,7 @@
         <!-- SEARCH WRAPPER & VOICE BUTTON -->
         <div class="search-wrapper">
             <div class="search-box">
-                <input type="text" id="searchInput" class="search-input" placeholder="Ask LOGIC, Calculate Math, or Translate..." autocomplete="off">
+                <input type="text" id="searchInput" class="search-input" placeholder="Ask LOGIC, Calculate Math, Translate, or say 'Generate Video of Space'..." autocomplete="off">
                 
                 <button id="clearInputBtn" class="action-icon-btn" style="display:none;" title="Clear">✕</button>
 
@@ -948,6 +984,20 @@
                     <span>Sources Analyzed:</span>
                     <!-- Dynamic Source Tags -->
                 </div>
+            </div>
+
+            <!-- GENERATOR SECTION (NEW MODULE) -->
+            <div id="generatorSection" class="generator-section">
+                <div class="section-title" style="border-left-color: var(--cyan-accent); color: var(--cyan-accent);">
+                    <span>⚙️</span>
+                    <span>Media Generation Engine</span>
+                </div>
+                <div class="generator-controls">
+                    <button class="nav-btn gen-btn" id="genPngBtn">🖼️ Export PNG Collage</button>
+                    <button class="nav-btn gen-btn" id="genAudioBtn">🎵 Export Audio Track</button>
+                    <button class="nav-btn gen-btn" id="genVideoBtn">🎬 Export Video</button>
+                </div>
+                <div id="genStatus">Ready for media generation.</div>
             </div>
 
             <!-- MULTIMEDIA SECTION (IMAGES / AUDIO / VIDEOS) -->
@@ -1084,12 +1134,24 @@
                 gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
                 osc.start(now);
                 osc.stop(now + 0.2);
+            } else if (type === 'thinking') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.5);
+                gainNode.gain.setValueAtTime(0.04, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
             }
         }
 
         // --- GLOBAL APP SETTINGS & STATE ---
         let currentAppLanguage = 'en'; // Wikipedia prefix
         let currentVoiceLanguage = 'en-US'; // Speech Recognition & TTS prefix
+
+        // Generator media buckets
+        let currentMediaImages = [];
+        let currentMediaAudio = [];
 
         // Language Maps for Translation Function
         const translationLanguageMap = {
@@ -1125,6 +1187,8 @@
         const mediaGridContainer = document.getElementById('mediaGridContainer');
         const articlesSection = document.getElementById('articlesSection');
         const articlesGridContainer = document.getElementById('articlesGridContainer');
+        const generatorSection = document.getElementById('generatorSection');
+        const genStatus = document.getElementById('genStatus');
 
         const readAloudBtn = document.getElementById('readAloudBtn');
         const stopSpeechBtn = document.getElementById('stopSpeechBtn');
@@ -1424,7 +1488,7 @@
 
         // --- CORE ASSISTANT SEARCH & MULTI-SOURCE SYNTHESIS ---
         async function executeAssistantQuery(queryStr) {
-            const query = (queryStr || searchInput.value).trim();
+            let query = (queryStr || searchInput.value).trim();
             if (!query) {
                 playSFX('error');
                 return;
@@ -1435,6 +1499,14 @@
             saveToHistory(query);
 
             if (synth) synth.cancel();
+
+            // Intercept Media Generator Voice/Text Commands (e.g., "Generate video about lions")
+            const genMatch = query.match(/^generate\s+(png|image|video|mp4|audio|mp3)\s+(?:of|for|about)?\s*(.+)$/i);
+            let autoGenerateType = null;
+            if (genMatch) {
+                autoGenerateType = genMatch[1].toLowerCase();
+                query = genMatch[2].trim(); // update query to just the actual topic
+            }
 
             // Reset UI State
             responseContainer.classList.remove('active');
@@ -1491,6 +1563,15 @@
                 // Synthesize & Render
                 synthesizeKnowledge(query, pages, commonsItems);
 
+                // If user specifically requested generation in their query text
+                if (autoGenerateType) {
+                    setTimeout(() => {
+                        if (autoGenerateType === 'png' || autoGenerateType === 'image') generatePNG();
+                        else if (autoGenerateType === 'video' || autoGenerateType === 'mp4') generateVideo();
+                        else if (autoGenerateType === 'audio' || autoGenerateType === 'mp3') generateAudio();
+                    }, 1000); // Wait a second for DOM/Images to settle
+                }
+
             } catch (err) {
                 console.error("Execution error:", err);
                 loaderWrapper.style.display = 'none';
@@ -1510,6 +1591,7 @@
             // Hide extraneous wiki media sections
             mediaSection.style.display = 'none';
             articlesSection.style.display = 'none';
+            generatorSection.style.display = 'none';
 
             responseContainer.classList.add('active');
 
@@ -1567,12 +1649,15 @@
         // --- RENDER MULTIMEDIA GALLERY ---
         function renderMediaSection(wikiPages, commonsMedia) {
             mediaGridContainer.innerHTML = '';
+            currentMediaImages = [];
+            currentMediaAudio = [];
             let mediaFound = 0;
 
             // 1. Gather Wikipedia Page Main Images
             wikiPages.forEach(page => {
                 if (page.thumbnail && page.thumbnail.source) {
                     mediaFound++;
+                    currentMediaImages.push(page.thumbnail.source); // Store for Generator
                     const card = document.createElement('div');
                     card.className = 'media-card';
                     card.innerHTML = `
@@ -1609,6 +1694,7 @@
                             previewHtml = `<video controls src="${fileUrl}"></video>`;
                         } else {
                             previewHtml = `<audio controls src="${fileUrl}"></audio>`;
+                            currentMediaAudio.push(fileUrl); // Store for Generator
                         }
 
                         card.innerHTML = `
@@ -1626,6 +1712,14 @@
             });
 
             mediaSection.style.display = mediaFound > 0 ? 'block' : 'none';
+
+            // Show Generator Toolbox if we have media
+            if (mediaFound > 0) {
+                generatorSection.style.display = 'block';
+                genStatus.textContent = 'Media loaded. Ready for generation.';
+            } else {
+                generatorSection.style.display = 'none';
+            }
         }
 
         // --- RENDER ARTICLE SOURCES BREAKDOWN ---
@@ -1665,6 +1759,230 @@
             
             articlesSection.style.display = 'block';
         }
+
+        // --- LOGIC MEDIA GENERATION ENGINE ---
+
+        // Helper to load images and resolve CORS properly for canvas drawing
+        function loadCORSImage(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = url;
+            });
+        }
+
+        async function generatePNG() {
+            genStatus.textContent = 'COMPILING PNG COLLAGE...';
+            playSFX('thinking');
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
+            
+            // Draw background
+            ctx.fillStyle = '#070401';
+            ctx.fillRect(0, 0, 800, 800);
+            
+            // Load gathered images securely
+            const imagesToLoad = currentMediaImages.slice(0, 4); // Max 4 for grid
+            let loaded = await Promise.all(imagesToLoad.map(loadCORSImage));
+            loaded = loaded.filter(img => img !== null); // Filter out failures
+            
+            // Draw Grid Collage
+            if (loaded.length > 0) {
+                loaded.forEach((img, idx) => {
+                    const x = (idx % 2) * 400;
+                    const y = Math.floor(idx / 2) * 400;
+                    if (loaded.length === 1) {
+                        ctx.drawImage(img, 0, 0, 800, 800);
+                    } else {
+                        ctx.drawImage(img, x, y, 400, 400);
+                    }
+                });
+            }
+            
+            // Draw bottom overlay for Text
+            ctx.fillStyle = 'rgba(7, 4, 1, 0.85)';
+            ctx.fillRect(0, 680, 800, 120);
+            
+            ctx.fillStyle = '#ffb700';
+            ctx.font = 'bold 24px "Courier New"';
+            ctx.fillText('LOGIC VISUAL SYNTHESIS:', 20, 715);
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = '16px "Courier New"';
+            let briefSummary = currentUnifiedSummary.replace(/\n/g, ' ').substring(0, 85) + '...';
+            ctx.fillText(briefSummary, 20, 750);
+
+            // Initiate Browser Download
+            const link = document.createElement('a');
+            link.download = 'LOGIC_Generated_Collage.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            genStatus.textContent = 'PNG EXPORT COMPLETE! FILE DOWNLOADED.';
+            playSFX('success');
+        }
+
+        async function generateAudio() {
+            genStatus.textContent = 'MIXING AUDIO TRACK...';
+            playSFX('thinking');
+            
+            // Create a Web Audio API destination for recording
+            const dest = audioCtx.createMediaStreamDestination();
+            const mediaRecorder = new MediaRecorder(dest.stream);
+            const chunks = [];
+            
+            mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'audio/webm' });
+                const link = document.createElement('a');
+                link.download = 'LOGIC_Generated_Audio.webm';
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                genStatus.textContent = 'AUDIO EXPORT COMPLETE! FILE DOWNLOADED.';
+                playSFX('success');
+            };
+            
+            mediaRecorder.start();
+            
+            // Add a cool background synth beat denoting "LOGIC Processing"
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 4);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 4);
+            osc.connect(gain);
+            gain.connect(dest);
+            osc.start();
+            
+            // Play fetched commons audio if available
+            if (currentMediaAudio.length > 0) {
+                const audioEl = new Audio(currentMediaAudio[0]);
+                audioEl.crossOrigin = "anonymous";
+                const source = audioCtx.createMediaElementSource(audioEl);
+                source.connect(dest);
+                audioEl.play().catch(e => console.log("Audio play blocked by browser", e));
+            }
+            
+            // Stop recording after 5 seconds to generate the file
+            setTimeout(() => {
+                osc.stop();
+                mediaRecorder.stop();
+            }, 5000);
+        }
+
+        async function generateVideo() {
+            genStatus.textContent = 'RENDERING VIDEO (PLEASE WAIT)...';
+            playSFX('thinking');
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 1280;
+            canvas.height = 720;
+            const ctx = canvas.getContext('2d');
+            
+            const dest = audioCtx.createMediaStreamDestination();
+            
+            // Mix Canvas Video Stream + Web Audio Stream
+            const canvasStream = canvas.captureStream(30); // 30 FPS
+            const combinedStream = new MediaStream([
+                ...canvasStream.getVideoTracks(),
+                ...dest.stream.getAudioTracks()
+            ]);
+            
+            const mediaRecorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm' });
+            const chunks = [];
+            
+            mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const link = document.createElement('a');
+                link.download = 'LOGIC_Generated_Video.webm'; // Standard browser video format
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                genStatus.textContent = 'VIDEO EXPORT COMPLETE! FILE DOWNLOADED.';
+                playSFX('success');
+            };
+            
+            // Preload images for animation
+            let loaded = await Promise.all(currentMediaImages.slice(0, 6).map(loadCORSImage));
+            loaded = loaded.filter(img => img !== null);
+            
+            mediaRecorder.start();
+            
+            // Synth background sound for the video
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(110, audioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(55, audioCtx.currentTime + 8);
+            gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 8);
+            osc.connect(gainNode);
+            gainNode.connect(dest);
+            osc.start();
+
+            let frame = 0;
+            let imgIdx = 0;
+            
+            // Video Render Loop
+            function drawFrame() {
+                if (mediaRecorder.state === "inactive") return;
+                
+                ctx.fillStyle = '#070401';
+                ctx.fillRect(0, 0, 1280, 720);
+                
+                // Draw Image zooming slightly
+                if (loaded.length > 0) {
+                    imgIdx = Math.floor((frame / 60)) % loaded.length;
+                    const img = loaded[imgIdx];
+                    const scale = 1 + ((frame % 60) * 0.005); // zoom effect
+                    const w = 1280 * scale;
+                    const h = 720 * scale;
+                    ctx.drawImage(img, (1280-w)/2, (720-h)/2, w, h);
+                }
+                
+                // Add Vignette Effect
+                const grad = ctx.createRadialGradient(640,360,200,640,360,800);
+                grad.addColorStop(0, 'rgba(0,0,0,0)');
+                grad.addColorStop(1, 'rgba(0,0,0,0.85)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0,0,1280,720);
+                
+                // Add Overlay Text
+                ctx.fillStyle = '#00f0ff';
+                ctx.font = 'bold 50px "Courier New"';
+                ctx.textAlign = 'center';
+                ctx.fillText('LOGIC MULTIMEDIA ENGINE', 640, 100);
+                
+                ctx.fillStyle = '#ffb700';
+                ctx.font = '35px "Courier New"';
+                const txt = summaryTopicTitle.textContent;
+                ctx.fillText(txt, 640, 600);
+                
+                frame++;
+                requestAnimationFrame(drawFrame);
+            }
+            
+            drawFrame();
+            
+            // Stop recording after 8 seconds of generated video
+            setTimeout(() => {
+                osc.stop();
+                mediaRecorder.stop();
+            }, 8000);
+        }
+
+        // Bind generator buttons
+        document.getElementById('genPngBtn').addEventListener('click', generatePNG);
+        document.getElementById('genAudioBtn').addEventListener('click', generateAudio);
+        document.getElementById('genVideoBtn').addEventListener('click', generateVideo);
+
 
         // --- HISTORY & BOOKMARKS LOGIC ---
         function saveToHistory(query) {
@@ -1787,5 +2105,4 @@
     </script>
 </body>
 </html>
-
 
