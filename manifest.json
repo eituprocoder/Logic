@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "Logic AI",
+  "short_name": "Logic AI",
+  "description": "Logic AI: asistente cognitivo local con Programmer, Live, memoria, razonamiento y herramientas.",
+  "lang": "es",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#020906",
+  "theme_color": "#07150d",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20512%20512'%3E%3Crect%20width%3D'512'%20height%3D'512'%20rx%3D'120'%20fill%3D'%252307150d'%2F%3E%3Ccircle%20cx%3D'256'%20cy%3D'256'%20r%3D'172'%20fill%3D'%252351f58b'%2F%3E%3Ctext%20x%3D'256'%20y%3D'328'%20font-size%3D'240'%20font-family%3D'Arial%2Csans-serif'%20font-weight%3D'900'%20text-anchor%3D'middle'%20fill%3D'%252307150d'%3EL%3C%2Ftext%3E%3C%2Fsvg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
